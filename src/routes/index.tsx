@@ -484,8 +484,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 const Poster = forwardRef<
   HTMLDivElement,
-  { data: ReportResult; template: PosterTemplate }
->(function Poster({ data, template }, ref) {
+  { data: ReportResult; template: PosterTemplate; image?: string | null }
+>(function Poster({ data, template, image }, ref) {
   const { report, meta } = data;
   const sectionsLayout =
     template.layout === "split"
@@ -529,6 +529,13 @@ const Poster = forwardRef<
         color: "oklch(0.2 0.03 60)",
       }}
     >
+      {image && (
+        <img
+          src={image}
+          alt="海报配图"
+          className="h-48 w-full object-cover"
+        />
+      )}
       <div className="px-7 pt-7">
         <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-[oklch(0.4_0.05_40)]">
           <span>AI for Good · Summer Camp</span>
