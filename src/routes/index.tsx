@@ -440,7 +440,7 @@ function Index() {
             )}
           </div>
           {result ? (
-            <Poster ref={posterRef} data={result} template={template} />
+            <Poster ref={posterRef} data={result} template={template} image={image} />
           ) : (
             <div className="flex h-[520px] items-center justify-center rounded-2xl border border-dashed border-[oklch(0.85_0.03_60)] bg-white/60 text-sm text-[oklch(0.55_0.02_60)]">
               填写左侧表单，生成的海报会出现在这里
