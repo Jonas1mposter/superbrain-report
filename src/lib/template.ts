@@ -8,7 +8,7 @@ export type SectionConfig = {
 
 export type LayoutKey = "stack" | "split" | "compact";
 
-export type PosterTemplate {
+export type PosterTemplate = {
   layout: LayoutKey;
   themeFrom: string; // oklch values
   themeVia: string;
