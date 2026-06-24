@@ -60,6 +60,19 @@ function Index() {
   const [template, setTemplate] = useState<PosterTemplate>(DEFAULT_TEMPLATE);
   const [showEditor, setShowEditor] = useState(false);
   const [savedNames, setSavedNames] = useState<string[]>([]);
+  const [image, setImage] = useState<string | null>(null);
+
+  function onPickImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      alert("图片不能超过 4MB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setImage(reader.result as string);
+    reader.readAsDataURL(file);
+  }
 
   useEffect(() => {
     setSavedNames(Object.keys(loadStoredTemplates()));
@@ -89,7 +102,7 @@ function Index() {
 
   function downloadHtml() {
     if (!result) return;
-    const html = buildStandaloneHtml(result, template);
+    const html = buildStandaloneHtml(result, template, image);
     const blob = new Blob([html], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -371,6 +384,22 @@ function Index() {
                 placeholder="例：用 AI 帮助听障儿童学习语言"
               />
             </Field>
+            <Field label="海报配图（选填）">
+              <input type="file" accept="image/*" onChange={onPickImage} className="input" />
+              {image && (
+                <div className="mt-2 flex items-center gap-2">
+                  <img src={image} alt="预览" className="h-14 w-14 rounded-md object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setImage(null)}
+                    className="text-xs text-[oklch(0.5_0.15_30)] hover:underline"
+                  >
+                    移除图片
+                  </button>
+                </div>
+              )}
+            </Field>
+
             <Field label="今日观察记录">
               <textarea
                 required
@@ -411,7 +440,7 @@ function Index() {
             )}
           </div>
           {result ? (
-            <Poster ref={posterRef} data={result} template={template} />
+            <Poster ref={posterRef} data={result} template={template} image={image} />
           ) : (
             <div className="flex h-[520px] items-center justify-center rounded-2xl border border-dashed border-[oklch(0.85_0.03_60)] bg-white/60 text-sm text-[oklch(0.55_0.02_60)]">
               填写左侧表单，生成的海报会出现在这里
@@ -455,8 +484,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 const Poster = forwardRef<
   HTMLDivElement,
-  { data: ReportResult; template: PosterTemplate }
->(function Poster({ data, template }, ref) {
+  { data: ReportResult; template: PosterTemplate; image?: string | null }
+>(function Poster({ data, template, image }, ref) {
   const { report, meta } = data;
   const sectionsLayout =
     template.layout === "split"
@@ -500,6 +529,13 @@ const Poster = forwardRef<
         color: "oklch(0.2 0.03 60)",
       }}
     >
+      {image && (
+        <img
+          src={image}
+          alt="海报配图"
+          className="h-48 w-full object-cover"
+        />
+      )}
       <div className="px-7 pt-7">
         <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-[oklch(0.4_0.05_40)]">
           <span>AI for Good · Summer Camp</span>
@@ -566,7 +602,7 @@ function Block({
   );
 }
 
-function buildStandaloneHtml(data: ReportResult, t: PosterTemplate) {
+function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: string | null) {
   const { report, meta } = data;
   const steps = report.improve.steps.map((s) => `<li>${esc(s)}</li>`).join("");
 
@@ -612,6 +648,7 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate) {
   .foot{text-align:center;font-size:10px;letter-spacing:.1em;color:#7a4a2a;padding-top:10px}
 </style></head><body>
 <div class="card">
+  ${image ? `<img src="${esc(image)}" alt="" style="display:block;width:100%;height:200px;object-fit:cover"/>` : ""}
   <div class="head">
     <div class="kicker"><span>AI for Good · Summer Camp</span><span>Day ${esc(meta.day)} / 7</span></div>
     <h1>${esc(meta.studentName)} 的第 ${esc(meta.day)} 天</h1>
