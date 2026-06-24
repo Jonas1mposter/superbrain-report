@@ -60,6 +60,19 @@ function Index() {
   const [template, setTemplate] = useState<PosterTemplate>(DEFAULT_TEMPLATE);
   const [showEditor, setShowEditor] = useState(false);
   const [savedNames, setSavedNames] = useState<string[]>([]);
+  const [image, setImage] = useState<string | null>(null);
+
+  function onPickImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      alert("图片不能超过 4MB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setImage(reader.result as string);
+    reader.readAsDataURL(file);
+  }
 
   useEffect(() => {
     setSavedNames(Object.keys(loadStoredTemplates()));
