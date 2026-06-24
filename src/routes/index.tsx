@@ -602,7 +602,7 @@ function Block({
   );
 }
 
-function buildStandaloneHtml(data: ReportResult, t: PosterTemplate) {
+function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: string | null) {
   const { report, meta } = data;
   const steps = report.improve.steps.map((s) => `<li>${esc(s)}</li>`).join("");
 
