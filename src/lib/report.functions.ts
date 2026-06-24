@@ -66,8 +66,8 @@ ${data.observations}`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "moonshot-v1-8k",
-        temperature: 0.6,
+        model: "kimi-k2.6",
+        temperature: 1,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: systemPrompt },
