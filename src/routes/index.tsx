@@ -662,14 +662,19 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
         : key === "stuck"
           ? `<div class="title">${esc(report.stuck.title)}</div><div class="detail">${esc(report.stuck.detail)}</div>`
           : `<div class="title">${esc(report.improve.title)}</div><div class="detail"><ul>${steps}</ul></div>`;
-    return `<div class="block" style="background:${tone.cssBg}"><div class="tag" style="color:${tone.cssAccent}">${esc(cfg.tag)}</div>${inner}</div>`;
+    return `<div class="block"><span class="bar" style="background:${tone.cssAccent}"></span><div class="tag" style="background:${tone.cssBg};color:${tone.cssAccent}">${esc(cfg.tag)}</div>${inner}</div>`;
   };
 
-  const sectionsHtml = SECTION_ORDER.map(blockHtml).join("");
-  const bodyLayout =
-    t.layout === "split"
-      ? "display:grid;grid-template-columns:1fr 1fr;gap:12px"
-      : "display:flex;flex-direction:column;gap:" + (t.layout === "compact" ? "8px" : "12px");
+  const enabled = SECTION_ORDER.filter((k) => t.sections[k].enabled);
+  const blocks = enabled.map(blockHtml);
+  const imgHtml = image
+    ? `<figure class="figure"><img src="${esc(image)}" alt=""/></figure>`
+    : "";
+  if (imgHtml) {
+    const insertAt = Math.min(1, Math.max(0, blocks.length - 1));
+    blocks.splice(insertAt, 0, imgHtml);
+  }
+  const sectionsHtml = blocks.join("");
 
   const gradient = `linear-gradient(160deg, ${oklchToCss(t.themeFrom)} 0%, ${oklchToCss(t.themeVia)} 55%, ${oklchToCss(t.themeTo)} 100%)`;
 
@@ -677,32 +682,47 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
 <title>${esc(meta.studentName)} · Day ${esc(meta.day)} 观察报告</title>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <style>
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f4ede2;padding:24px;color:#2a221b}
-  .card{max-width:560px;margin:0 auto;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(160,80,40,.18);background:${gradient}}
-  .head{padding:28px 28px 0}
-  .kicker{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#7a4a2a}
-  h1{font-size:28px;margin:14px 0 4px}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f4ede2;padding:28px 16px;color:#2a221b}
+  .card{position:relative;max-width:580px;margin:0 auto;border-radius:28px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(120,60,30,.45);background:${gradient}}
+  .blob{position:absolute;border-radius:9999px;filter:blur(60px);pointer-events:none}
+  .blob.a{right:-60px;top:-60px;width:220px;height:220px;background:#f0b48a;opacity:.45}
+  .blob.b{left:-40px;bottom:-80px;width:220px;height:220px;background:#e8b8d4;opacity:.35}
+  .head{position:relative;padding:32px 32px 0}
+  .kicker{display:flex;justify-content:space-between;align-items:center;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#7a4a2a;font-weight:500}
+  .kicker .dot{display:inline-flex;align-items:center;gap:6px}
+  .kicker .dot::before{content:"";display:inline-block;width:6px;height:6px;border-radius:9999px;background:#c25535}
+  .badge{background:rgba(255,255,255,.6);padding:3px 10px;border-radius:9999px;color:#8a3a1a}
+  h1{font-size:28px;margin:18px 0 6px;letter-spacing:-.01em;color:#3a2418;line-height:1.15}
   .sub{font-size:13px;color:#7a4a2a;margin:0}
-  .body{padding:20px 28px 28px}
-  .sections{${bodyLayout}}
-  .block{border:1px solid rgba(255,255,255,.7);border-radius:14px;padding:14px 16px}
-  .tag{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
-  .title{font-weight:600;margin-bottom:4px}
-  .detail{color:#4a3a2a;font-size:14px;line-height:1.6}
+  .divider{margin-top:20px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent)}
+  .body{position:relative;padding:20px 32px 32px;display:flex;flex-direction:column;gap:12px}
+  .block{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.8);background:rgba(255,255,255,.85);border-radius:16px;padding:16px 18px;box-shadow:0 4px 16px -8px rgba(80,40,20,.18)}
+  .block .bar{position:absolute;left:0;top:0;width:4px;height:100%}
+  .tag{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;border-radius:9999px;margin-bottom:8px}
+  .title{font-weight:600;margin-bottom:4px;font-size:15px;color:#2a1a10}
+  .detail{color:#4a3a2a;font-size:14px;line-height:1.65}
   ul{margin:6px 0 0 18px;padding:0}
-  .quote{margin-top:12px;background:rgba(255,255,255,.7);border-radius:12px;padding:12px;text-align:center;font-style:italic;color:#7a3a1a}
-  .foot{text-align:center;font-size:10px;letter-spacing:.1em;color:#7a4a2a;padding-top:10px}
+  ul li{margin:4px 0}
+  .figure{margin:0;border:1px solid rgba(255,255,255,.8);background:#fbf5ec;border-radius:18px;padding:8px;box-shadow:0 8px 24px -12px rgba(80,40,20,.25)}
+  .figure img{display:block;width:100%;max-height:380px;object-fit:contain;border-radius:12px}
+  .quote{position:relative;margin-top:8px;background:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.7);border-radius:16px;padding:18px 28px;text-align:center;font-style:italic;color:#7a3a1a;font-size:15px}
+  .quote::before,.quote::after{position:absolute;font-family:Georgia,serif;font-size:34px;color:rgba(194,85,53,.4);line-height:1}
+  .quote::before{content:"\\201C";left:10px;top:6px}
+  .quote::after{content:"\\201D";right:10px;bottom:0}
+  .foot{text-align:center;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#7a4a2a;padding-top:12px}
 </style></head><body>
 <div class="card">
-  ${image ? `<img src="${esc(image)}" alt="" style="display:block;width:100%;height:200px;object-fit:cover"/>` : ""}
+  <div class="blob a"></div><div class="blob b"></div>
   <div class="head">
-    <div class="kicker"><span>AI for Good · Summer Camp</span><span>Day ${esc(meta.day)} / 7</span></div>
+    <div class="kicker"><span class="dot">AI for Good · Summer Camp</span><span class="badge">Day ${esc(meta.day)} / 7</span></div>
     <h1>${esc(meta.studentName)} 的第 ${esc(meta.day)} 天</h1>
     <p class="sub">${esc(meta.date)}${meta.project ? " · " + esc(meta.project) : ""}${t.showMentor && meta.mentor ? " · 导师 " + esc(meta.mentor) : ""}</p>
+    <div class="divider"></div>
   </div>
   <div class="body">
-    <div class="sections">${sectionsHtml}</div>
-    ${t.showEncouragement ? `<div class="quote">“${esc(report.encouragement)}”</div>` : ""}
+    ${sectionsHtml}
+    ${t.showEncouragement ? `<div class="quote">${esc(report.encouragement)}</div>` : ""}
     <div class="foot">${esc(t.footer)}</div>
   </div>
 </div>
