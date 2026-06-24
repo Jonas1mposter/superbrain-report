@@ -30,7 +30,7 @@ export const DEFAULT_TEMPLATE: PosterTemplate = {
   sections: {
     highlight: { enabled: true, tag: "✨ 今日高光", tone: "warm" },
     stuck: { enabled: true, tag: "🧱 今日卡点", tone: "cool" },
-    improve: { enabled: true, tag: "🚀 如何进步", tone: "green" },
+    improve: { enabled: true, tag: "💌 给家长的建议", tone: "green" },
   },
 };
 
