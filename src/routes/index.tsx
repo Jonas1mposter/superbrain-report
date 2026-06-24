@@ -505,87 +505,111 @@ const Poster = forwardRef<
   { data: ReportResult; template: PosterTemplate; image?: string | null }
 >(function Poster({ data, template, image }, ref) {
   const { report, meta } = data;
-  const sectionsLayout =
-    template.layout === "split"
-      ? "grid grid-cols-2 gap-3"
-      : template.layout === "compact"
-        ? "space-y-2"
-        : "space-y-3";
 
-  const sectionNodes: Record<SectionKey, React.ReactNode> = {
-    highlight: (
-      <Block
-        key="highlight"
-        cfg={template.sections.highlight}
-        title={report.highlight.title}
-      >
-        <p>{report.highlight.detail}</p>
-      </Block>
-    ),
-    stuck: (
-      <Block key="stuck" cfg={template.sections.stuck} title={report.stuck.title}>
-        <p>{report.stuck.detail}</p>
-      </Block>
-    ),
-    improve: (
+  const enabledSections = SECTION_ORDER.filter((k) => template.sections[k].enabled);
+  const imageInsertAt = Math.min(1, Math.max(0, enabledSections.length - 1)); // after first section
+
+  const renderSection = (k: SectionKey) => {
+    if (k === "highlight")
+      return (
+        <Block key="highlight" cfg={template.sections.highlight} title={report.highlight.title}>
+          <p>{report.highlight.detail}</p>
+        </Block>
+      );
+    if (k === "stuck")
+      return (
+        <Block key="stuck" cfg={template.sections.stuck} title={report.stuck.title}>
+          <p>{report.stuck.detail}</p>
+        </Block>
+      );
+    return (
       <Block key="improve" cfg={template.sections.improve} title={report.improve.title}>
-        <ul className="ml-4 list-disc space-y-1">
+        <ul className="ml-4 list-disc space-y-1.5 marker:text-[oklch(0.6_0.15_30)]">
           {report.improve.steps.map((s, i) => (
             <li key={i}>{s}</li>
           ))}
         </ul>
       </Block>
-    ),
+    );
   };
+
+  const imageBlock = image ? (
+    <figure
+      key="image"
+      className="overflow-hidden rounded-2xl border border-white/70 bg-[oklch(0.97_0.01_80)] p-2 shadow-[0_8px_24px_-12px_rgba(80,40,20,0.25)]"
+    >
+      <img
+        src={image}
+        alt="海报配图"
+        className="block max-h-[360px] w-full rounded-xl object-contain"
+      />
+    </figure>
+  ) : null;
+
+  const sectionItems: React.ReactNode[] = enabledSections.map(renderSection);
+  if (imageBlock) sectionItems.splice(imageInsertAt, 0, imageBlock);
 
   return (
     <div
       ref={ref}
-      className="overflow-hidden rounded-2xl shadow-xl"
+      className="relative overflow-hidden rounded-[28px] shadow-[0_30px_80px_-30px_rgba(120,60,30,0.45)]"
       style={{
         background: `linear-gradient(160deg, ${template.themeFrom} 0%, ${template.themeVia} 55%, ${template.themeTo} 100%)`,
         color: "oklch(0.2 0.03 60)",
       }}
     >
-      {image && (
-        <img
-          src={image}
-          alt="海报配图"
-          className="h-48 w-full object-cover"
-        />
-      )}
-      <div className="px-7 pt-7">
-        <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-[oklch(0.4_0.05_40)]">
-          <span>AI for Good · Summer Camp</span>
-          <span>Day {meta.day} / 7</span>
+      {/* decorative blobs */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full opacity-40 blur-3xl"
+        style={{ background: "oklch(0.85 0.12 50)" }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full opacity-30 blur-3xl"
+        style={{ background: "oklch(0.85 0.1 350)" }}
+      />
+
+      <div className="relative px-8 pt-8">
+        <div className="flex items-center justify-between text-[10px] font-medium uppercase tracking-[0.22em] text-[oklch(0.4_0.05_40)]">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[oklch(0.55_0.18_30)]" />
+            AI for Good · Summer Camp
+          </span>
+          <span className="rounded-full bg-white/60 px-2.5 py-0.5 text-[10px] text-[oklch(0.35_0.1_30)]">
+            Day {meta.day} / 7
+          </span>
         </div>
-        <h3 className="mt-4 text-3xl font-bold leading-tight">
+        <h3 className="mt-5 text-[28px] font-bold leading-[1.15] tracking-tight text-[oklch(0.22_0.05_40)]">
           {meta.studentName} 的第 {meta.day} 天
         </h3>
-        <p className="mt-1 text-sm text-[oklch(0.4_0.05_40)]">
+        <p className="mt-2 text-sm text-[oklch(0.42_0.05_40)]">
           {meta.date}
           {meta.project ? ` · ${meta.project}` : ""}
           {template.showMentor && meta.mentor ? ` · 导师 ${meta.mentor}` : ""}
         </p>
+        <div className="mt-5 h-px w-full bg-gradient-to-r from-transparent via-white/80 to-transparent" />
       </div>
 
-      <div className="mt-6 px-7 pb-7">
-        <div className={sectionsLayout}>
-          {SECTION_ORDER.filter((k) => template.sections[k].enabled).map(
-            (k) => sectionNodes[k],
-          )}
-        </div>
+      <div className="relative mt-5 space-y-3 px-8 pb-8">
+        {sectionItems}
 
         {template.showEncouragement && (
           <div
-            className="mt-4 rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-center text-sm italic"
+            className="relative mt-5 rounded-2xl border border-white/70 bg-white/80 px-6 py-5 text-center text-[15px] italic backdrop-blur"
             style={{ color: "oklch(0.35 0.1 30)" }}
           >
-            “{report.encouragement}”
+            <span className="absolute left-3 top-1 select-none font-serif text-4xl leading-none text-[oklch(0.55_0.18_30)]/40">
+              “
+            </span>
+            {report.encouragement}
+            <span className="absolute bottom-0 right-3 select-none font-serif text-4xl leading-none text-[oklch(0.55_0.18_30)]/40">
+              ”
+            </span>
           </div>
         )}
 
-        <div className="pt-3 text-center text-[10px] tracking-wider text-[oklch(0.45_0.05_40)]">
+        <div className="pt-4 text-center text-[10px] uppercase tracking-[0.2em] text-[oklch(0.45_0.05_40)]">
           {template.footer}
         </div>
       </div>
@@ -605,17 +629,21 @@ function Block({
   const tone = TONE_STYLES[cfg.tone];
   return (
     <div
-      className="rounded-xl border border-white/70 px-4 py-3 text-sm leading-relaxed"
-      style={{ background: tone.bg }}
+      className="relative overflow-hidden rounded-2xl border border-white/80 bg-white/85 px-5 py-4 text-[14px] leading-relaxed backdrop-blur-sm shadow-[0_4px_16px_-8px_rgba(80,40,20,0.18)]"
     >
+      <span
+        aria-hidden
+        className="absolute left-0 top-0 h-full w-1"
+        style={{ background: tone.accent }}
+      />
       <div
-        className="mb-1 text-[11px] font-semibold uppercase tracking-wider"
-        style={{ color: tone.accent }}
+        className="mb-1.5 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em]"
+        style={{ background: tone.bg, color: tone.accent }}
       >
         {cfg.tag}
       </div>
-      <div className="mb-1 font-semibold text-[oklch(0.2_0.03_60)]">{title}</div>
-      <div className="text-[oklch(0.3_0.03_60)]">{children}</div>
+      <div className="mb-1 text-[15px] font-semibold text-[oklch(0.22_0.04_60)]">{title}</div>
+      <div className="text-[oklch(0.32_0.03_60)]">{children}</div>
     </div>
   );
 }
