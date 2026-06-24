@@ -648,6 +648,7 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
   .foot{text-align:center;font-size:10px;letter-spacing:.1em;color:#7a4a2a;padding-top:10px}
 </style></head><body>
 <div class="card">
+  ${image ? `<img src="${esc(image)}" alt="" style="display:block;width:100%;height:200px;object-fit:cover"/>` : ""}
   <div class="head">
     <div class="kicker"><span>AI for Good · Summer Camp</span><span>Day ${esc(meta.day)} / 7</span></div>
     <h1>${esc(meta.studentName)} 的第 ${esc(meta.day)} 天</h1>
