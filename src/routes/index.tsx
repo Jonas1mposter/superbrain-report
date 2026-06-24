@@ -505,87 +505,111 @@ const Poster = forwardRef<
   { data: ReportResult; template: PosterTemplate; image?: string | null }
 >(function Poster({ data, template, image }, ref) {
   const { report, meta } = data;
-  const sectionsLayout =
-    template.layout === "split"
-      ? "grid grid-cols-2 gap-3"
-      : template.layout === "compact"
-        ? "space-y-2"
-        : "space-y-3";
 
-  const sectionNodes: Record<SectionKey, React.ReactNode> = {
-    highlight: (
-      <Block
-        key="highlight"
-        cfg={template.sections.highlight}
-        title={report.highlight.title}
-      >
-        <p>{report.highlight.detail}</p>
-      </Block>
-    ),
-    stuck: (
-      <Block key="stuck" cfg={template.sections.stuck} title={report.stuck.title}>
-        <p>{report.stuck.detail}</p>
-      </Block>
-    ),
-    improve: (
+  const enabledSections = SECTION_ORDER.filter((k) => template.sections[k].enabled);
+  const imageInsertAt = Math.min(1, Math.max(0, enabledSections.length - 1)); // after first section
+
+  const renderSection = (k: SectionKey) => {
+    if (k === "highlight")
+      return (
+        <Block key="highlight" cfg={template.sections.highlight} title={report.highlight.title}>
+          <p>{report.highlight.detail}</p>
+        </Block>
+      );
+    if (k === "stuck")
+      return (
+        <Block key="stuck" cfg={template.sections.stuck} title={report.stuck.title}>
+          <p>{report.stuck.detail}</p>
+        </Block>
+      );
+    return (
       <Block key="improve" cfg={template.sections.improve} title={report.improve.title}>
-        <ul className="ml-4 list-disc space-y-1">
+        <ul className="ml-4 list-disc space-y-1.5 marker:text-[oklch(0.6_0.15_30)]">
           {report.improve.steps.map((s, i) => (
             <li key={i}>{s}</li>
           ))}
         </ul>
       </Block>
-    ),
+    );
   };
+
+  const imageBlock = image ? (
+    <figure
+      key="image"
+      className="overflow-hidden rounded-2xl border border-white/70 bg-[oklch(0.97_0.01_80)] p-2 shadow-[0_8px_24px_-12px_rgba(80,40,20,0.25)]"
+    >
+      <img
+        src={image}
+        alt="海报配图"
+        className="block max-h-[360px] w-full rounded-xl object-contain"
+      />
+    </figure>
+  ) : null;
+
+  const sectionItems: React.ReactNode[] = enabledSections.map(renderSection);
+  if (imageBlock) sectionItems.splice(imageInsertAt, 0, imageBlock);
 
   return (
     <div
       ref={ref}
-      className="overflow-hidden rounded-2xl shadow-xl"
+      className="relative overflow-hidden rounded-[28px] shadow-[0_30px_80px_-30px_rgba(120,60,30,0.45)]"
       style={{
         background: `linear-gradient(160deg, ${template.themeFrom} 0%, ${template.themeVia} 55%, ${template.themeTo} 100%)`,
         color: "oklch(0.2 0.03 60)",
       }}
     >
-      {image && (
-        <img
-          src={image}
-          alt="海报配图"
-          className="h-48 w-full object-cover"
-        />
-      )}
-      <div className="px-7 pt-7">
-        <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-[oklch(0.4_0.05_40)]">
-          <span>AI for Good · Summer Camp</span>
-          <span>Day {meta.day} / 7</span>
+      {/* decorative blobs */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full opacity-40 blur-3xl"
+        style={{ background: "oklch(0.85 0.12 50)" }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full opacity-30 blur-3xl"
+        style={{ background: "oklch(0.85 0.1 350)" }}
+      />
+
+      <div className="relative px-8 pt-8">
+        <div className="flex items-center justify-between text-[10px] font-medium uppercase tracking-[0.22em] text-[oklch(0.4_0.05_40)]">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[oklch(0.55_0.18_30)]" />
+            AI for Good · Summer Camp
+          </span>
+          <span className="rounded-full bg-white/60 px-2.5 py-0.5 text-[10px] text-[oklch(0.35_0.1_30)]">
+            Day {meta.day} / 7
+          </span>
         </div>
-        <h3 className="mt-4 text-3xl font-bold leading-tight">
+        <h3 className="mt-5 text-[28px] font-bold leading-[1.15] tracking-tight text-[oklch(0.22_0.05_40)]">
           {meta.studentName} 的第 {meta.day} 天
         </h3>
-        <p className="mt-1 text-sm text-[oklch(0.4_0.05_40)]">
+        <p className="mt-2 text-sm text-[oklch(0.42_0.05_40)]">
           {meta.date}
           {meta.project ? ` · ${meta.project}` : ""}
           {template.showMentor && meta.mentor ? ` · 导师 ${meta.mentor}` : ""}
         </p>
+        <div className="mt-5 h-px w-full bg-gradient-to-r from-transparent via-white/80 to-transparent" />
       </div>
 
-      <div className="mt-6 px-7 pb-7">
-        <div className={sectionsLayout}>
-          {SECTION_ORDER.filter((k) => template.sections[k].enabled).map(
-            (k) => sectionNodes[k],
-          )}
-        </div>
+      <div className="relative mt-5 space-y-3 px-8 pb-8">
+        {sectionItems}
 
         {template.showEncouragement && (
           <div
-            className="mt-4 rounded-xl border border-white/60 bg-white/70 px-4 py-3 text-center text-sm italic"
+            className="relative mt-5 rounded-2xl border border-white/70 bg-white/80 px-6 py-5 text-center text-[15px] italic backdrop-blur"
             style={{ color: "oklch(0.35 0.1 30)" }}
           >
-            “{report.encouragement}”
+            <span className="absolute left-3 top-1 select-none font-serif text-4xl leading-none text-[oklch(0.55_0.18_30)]/40">
+              “
+            </span>
+            {report.encouragement}
+            <span className="absolute bottom-0 right-3 select-none font-serif text-4xl leading-none text-[oklch(0.55_0.18_30)]/40">
+              ”
+            </span>
           </div>
         )}
 
-        <div className="pt-3 text-center text-[10px] tracking-wider text-[oklch(0.45_0.05_40)]">
+        <div className="pt-4 text-center text-[10px] uppercase tracking-[0.2em] text-[oklch(0.45_0.05_40)]">
           {template.footer}
         </div>
       </div>
@@ -605,17 +629,21 @@ function Block({
   const tone = TONE_STYLES[cfg.tone];
   return (
     <div
-      className="rounded-xl border border-white/70 px-4 py-3 text-sm leading-relaxed"
-      style={{ background: tone.bg }}
+      className="relative overflow-hidden rounded-2xl border border-white/80 bg-white/85 px-5 py-4 text-[14px] leading-relaxed backdrop-blur-sm shadow-[0_4px_16px_-8px_rgba(80,40,20,0.18)]"
     >
+      <span
+        aria-hidden
+        className="absolute left-0 top-0 h-full w-1"
+        style={{ background: tone.accent }}
+      />
       <div
-        className="mb-1 text-[11px] font-semibold uppercase tracking-wider"
-        style={{ color: tone.accent }}
+        className="mb-1.5 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em]"
+        style={{ background: tone.bg, color: tone.accent }}
       >
         {cfg.tag}
       </div>
-      <div className="mb-1 font-semibold text-[oklch(0.2_0.03_60)]">{title}</div>
-      <div className="text-[oklch(0.3_0.03_60)]">{children}</div>
+      <div className="mb-1 text-[15px] font-semibold text-[oklch(0.22_0.04_60)]">{title}</div>
+      <div className="text-[oklch(0.32_0.03_60)]">{children}</div>
     </div>
   );
 }
@@ -634,14 +662,19 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
         : key === "stuck"
           ? `<div class="title">${esc(report.stuck.title)}</div><div class="detail">${esc(report.stuck.detail)}</div>`
           : `<div class="title">${esc(report.improve.title)}</div><div class="detail"><ul>${steps}</ul></div>`;
-    return `<div class="block" style="background:${tone.cssBg}"><div class="tag" style="color:${tone.cssAccent}">${esc(cfg.tag)}</div>${inner}</div>`;
+    return `<div class="block"><span class="bar" style="background:${tone.cssAccent}"></span><div class="tag" style="background:${tone.cssBg};color:${tone.cssAccent}">${esc(cfg.tag)}</div>${inner}</div>`;
   };
 
-  const sectionsHtml = SECTION_ORDER.map(blockHtml).join("");
-  const bodyLayout =
-    t.layout === "split"
-      ? "display:grid;grid-template-columns:1fr 1fr;gap:12px"
-      : "display:flex;flex-direction:column;gap:" + (t.layout === "compact" ? "8px" : "12px");
+  const enabled = SECTION_ORDER.filter((k) => t.sections[k].enabled);
+  const blocks = enabled.map(blockHtml);
+  const imgHtml = image
+    ? `<figure class="figure"><img src="${esc(image)}" alt=""/></figure>`
+    : "";
+  if (imgHtml) {
+    const insertAt = Math.min(1, Math.max(0, blocks.length - 1));
+    blocks.splice(insertAt, 0, imgHtml);
+  }
+  const sectionsHtml = blocks.join("");
 
   const gradient = `linear-gradient(160deg, ${oklchToCss(t.themeFrom)} 0%, ${oklchToCss(t.themeVia)} 55%, ${oklchToCss(t.themeTo)} 100%)`;
 
@@ -649,32 +682,47 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
 <title>${esc(meta.studentName)} · Day ${esc(meta.day)} 观察报告</title>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <style>
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f4ede2;padding:24px;color:#2a221b}
-  .card{max-width:560px;margin:0 auto;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(160,80,40,.18);background:${gradient}}
-  .head{padding:28px 28px 0}
-  .kicker{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#7a4a2a}
-  h1{font-size:28px;margin:14px 0 4px}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f4ede2;padding:28px 16px;color:#2a221b}
+  .card{position:relative;max-width:580px;margin:0 auto;border-radius:28px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(120,60,30,.45);background:${gradient}}
+  .blob{position:absolute;border-radius:9999px;filter:blur(60px);pointer-events:none}
+  .blob.a{right:-60px;top:-60px;width:220px;height:220px;background:#f0b48a;opacity:.45}
+  .blob.b{left:-40px;bottom:-80px;width:220px;height:220px;background:#e8b8d4;opacity:.35}
+  .head{position:relative;padding:32px 32px 0}
+  .kicker{display:flex;justify-content:space-between;align-items:center;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#7a4a2a;font-weight:500}
+  .kicker .dot{display:inline-flex;align-items:center;gap:6px}
+  .kicker .dot::before{content:"";display:inline-block;width:6px;height:6px;border-radius:9999px;background:#c25535}
+  .badge{background:rgba(255,255,255,.6);padding:3px 10px;border-radius:9999px;color:#8a3a1a}
+  h1{font-size:28px;margin:18px 0 6px;letter-spacing:-.01em;color:#3a2418;line-height:1.15}
   .sub{font-size:13px;color:#7a4a2a;margin:0}
-  .body{padding:20px 28px 28px}
-  .sections{${bodyLayout}}
-  .block{border:1px solid rgba(255,255,255,.7);border-radius:14px;padding:14px 16px}
-  .tag{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
-  .title{font-weight:600;margin-bottom:4px}
-  .detail{color:#4a3a2a;font-size:14px;line-height:1.6}
+  .divider{margin-top:20px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent)}
+  .body{position:relative;padding:20px 32px 32px;display:flex;flex-direction:column;gap:12px}
+  .block{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.8);background:rgba(255,255,255,.85);border-radius:16px;padding:16px 18px;box-shadow:0 4px 16px -8px rgba(80,40,20,.18)}
+  .block .bar{position:absolute;left:0;top:0;width:4px;height:100%}
+  .tag{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;border-radius:9999px;margin-bottom:8px}
+  .title{font-weight:600;margin-bottom:4px;font-size:15px;color:#2a1a10}
+  .detail{color:#4a3a2a;font-size:14px;line-height:1.65}
   ul{margin:6px 0 0 18px;padding:0}
-  .quote{margin-top:12px;background:rgba(255,255,255,.7);border-radius:12px;padding:12px;text-align:center;font-style:italic;color:#7a3a1a}
-  .foot{text-align:center;font-size:10px;letter-spacing:.1em;color:#7a4a2a;padding-top:10px}
+  ul li{margin:4px 0}
+  .figure{margin:0;border:1px solid rgba(255,255,255,.8);background:#fbf5ec;border-radius:18px;padding:8px;box-shadow:0 8px 24px -12px rgba(80,40,20,.25)}
+  .figure img{display:block;width:100%;max-height:380px;object-fit:contain;border-radius:12px}
+  .quote{position:relative;margin-top:8px;background:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.7);border-radius:16px;padding:18px 28px;text-align:center;font-style:italic;color:#7a3a1a;font-size:15px}
+  .quote::before,.quote::after{position:absolute;font-family:Georgia,serif;font-size:34px;color:rgba(194,85,53,.4);line-height:1}
+  .quote::before{content:"\\201C";left:10px;top:6px}
+  .quote::after{content:"\\201D";right:10px;bottom:0}
+  .foot{text-align:center;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#7a4a2a;padding-top:12px}
 </style></head><body>
 <div class="card">
-  ${image ? `<img src="${esc(image)}" alt="" style="display:block;width:100%;height:200px;object-fit:cover"/>` : ""}
+  <div class="blob a"></div><div class="blob b"></div>
   <div class="head">
-    <div class="kicker"><span>AI for Good · Summer Camp</span><span>Day ${esc(meta.day)} / 7</span></div>
+    <div class="kicker"><span class="dot">AI for Good · Summer Camp</span><span class="badge">Day ${esc(meta.day)} / 7</span></div>
     <h1>${esc(meta.studentName)} 的第 ${esc(meta.day)} 天</h1>
     <p class="sub">${esc(meta.date)}${meta.project ? " · " + esc(meta.project) : ""}${t.showMentor && meta.mentor ? " · 导师 " + esc(meta.mentor) : ""}</p>
+    <div class="divider"></div>
   </div>
   <div class="body">
-    <div class="sections">${sectionsHtml}</div>
-    ${t.showEncouragement ? `<div class="quote">“${esc(report.encouragement)}”</div>` : ""}
+    ${sectionsHtml}
+    ${t.showEncouragement ? `<div class="quote">${esc(report.encouragement)}</div>` : ""}
     <div class="foot">${esc(t.footer)}</div>
   </div>
 </div>
