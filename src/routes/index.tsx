@@ -384,7 +384,22 @@ function Index() {
                 placeholder="例：用 AI 帮助听障儿童学习语言"
               />
             </Field>
-            <Field label="今日观察记录">
+            <Field label="海报配图（选填）">
+              <input type="file" accept="image/*" onChange={onPickImage} className="input" />
+              {image && (
+                <div className="mt-2 flex items-center gap-2">
+                  <img src={image} alt="预览" className="h-14 w-14 rounded-md object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setImage(null)}
+                    className="text-xs text-[oklch(0.5_0.15_30)] hover:underline"
+                  >
+                    移除图片
+                  </button>
+                </div>
+              )}
+            </Field>
+
               <textarea
                 required
                 rows={8}
