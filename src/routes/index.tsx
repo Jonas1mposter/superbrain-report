@@ -332,7 +332,16 @@ function Index() {
 
       <main className="mx-auto grid max-w-6xl gap-8 px-6 py-8 lg:grid-cols-[1fr_1.1fr]">
         <section className="rounded-2xl border border-[oklch(0.9_0.02_80)] bg-white p-6 shadow-sm">
-          <h2 className="mb-1 text-lg font-semibold">填写基础信息</h2>
+          <h2 className="mb-1 flex items-center justify-between text-lg font-semibold">
+            填写基础信息
+            <button
+              type="button"
+              onClick={() => setForm(EXAMPLE)}
+              className="text-xs font-normal text-[oklch(0.5_0.15_30)] hover:underline"
+            >
+              填入示例
+            </button>
+          </h2>
           <p className="mb-5 text-sm text-[oklch(0.5_0.02_60)]">
             写下你今天对学员的真实观察，AI 会帮你整理成一份温暖的报告海报。
           </p>
