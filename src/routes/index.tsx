@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useRef, useState } from "react";
+import { forwardRef, useRef, useState } from "react";
 import { generateReport, type DailyReport } from "@/lib/report.functions";
 
 export const Route = createFileRoute("/")({
@@ -9,7 +9,8 @@ export const Route = createFileRoute("/")({
       { title: "AI for Good · 每日观察报告生成器" },
       {
         name: "description",
-        content: "为 AI for Good 7天夏令营导师设计的每日观察报告生成器，一键生成包含今日高光、卡点与进步建议的 HTML 海报。",
+        content:
+          "为 AI for Good 7天夏令营导师设计的每日观察报告生成器，一键生成包含今日高光、卡点与进步建议的 HTML 海报。",
       },
     ],
   }),
@@ -59,7 +60,7 @@ function Index() {
   }
 
   function downloadHtml() {
-    if (!posterRef.current || !result) return;
+    if (!result) return;
     const html = buildStandaloneHtml(result);
     const blob = new Blob([html], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -148,7 +149,7 @@ function Index() {
                 value={form.observations}
                 onChange={(e) => setForm({ ...form, observations: e.target.value })}
                 className="input resize-y"
-                placeholder={`尽量具体，比如：\n- 上午做了什么\n- 遇到的困难\n- 与队友的互动\n- 让你眼前一亮的瞬间`}
+                placeholder={"尽量具体，比如：\n- 上午做了什么\n- 遇到的困难\n- 与队友的互动\n- 让你眼前一亮的瞬间"}
               />
             </Field>
 
@@ -219,12 +220,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-const Poster = ({ data }: { data: ReportResult } & { ref?: React.Ref<HTMLDivElement> }) => null as never;
-
-// Real Poster component with ref
-function PosterImpl(
-  { data }: { data: ReportResult },
-  ref: React.Ref<HTMLDivElement>,
+const Poster = forwardRef<HTMLDivElement, { data: ReportResult }>(function Poster(
+  { data },
+  ref,
 ) {
   const { report, meta } = data;
   return (
@@ -280,26 +278,7 @@ function PosterImpl(
       </div>
     </div>
   );
-}
-
-const PosterWithRef = (function () {
-  return Object.assign(
-    (props: { data: ReportResult; ref?: React.Ref<HTMLDivElement> }) => null,
-    {},
-  );
-})();
-
-// Replace placeholder with forwardRef component
-import { forwardRef } from "react";
-const PosterFwd = forwardRef<HTMLDivElement, { data: ReportResult }>((props, ref) =>
-  PosterImpl(props, ref),
-);
-PosterFwd.displayName = "Poster";
-// Override exports above
-(Poster as unknown) = PosterFwd;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const _PosterAlias: any = PosterFwd;
-export { _PosterAlias as PosterRender };
+});
 
 function Block({
   tag,
@@ -382,5 +361,8 @@ function buildStandaloneHtml(data: ReportResult) {
 }
 
 function esc(s: string) {
-  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+  return String(s).replace(
+    /[&<>"']/g,
+    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!,
+  );
 }
