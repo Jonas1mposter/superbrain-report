@@ -41,6 +41,15 @@ type ReportResult = {
 
 const SECTION_ORDER: SectionKey[] = ["highlight", "stuck", "improve"];
 
+const EXAMPLE = {
+  studentName: "林小满",
+  day: "3",
+  date: "2026-07-15",
+  project: "用 AI 帮助听障儿童学习语言",
+  mentor: "陈老师",
+  observations: `上午的 AI 伦理工作坊里，小满主动举手分享了昨天在社区调研中遇到的真实故事：一位听障儿童的家长说，现有的语音学习 App 语速太快，孩子跟不上。小满立刻在小组讨论中提出"可以让 AI 把句子拆成更慢的小片段"，并画了一个三页纸的流程草图。\n\n午饭前她用 Kimi 辅助生成了一个"慢语速语音切片"的原型说明，但中途卡在选择工具上——她试了两种 TTS 工具都不满意，情绪有点低落，甚至说"是不是我的想法太简单了"。经过导师和同学提醒，她发现不是想法简单，而是还没找到适合儿童语速的参数。\n\n下午她和队友一起把流程图改成可点击的低保真原型，并决定明天先去采访 1 位小朋友验证这个方向。`,
+};
+
 function Index() {
   const run = useServerFn(generateReport);
   const [loading, setLoading] = useState(false);
@@ -332,7 +341,16 @@ function Index() {
 
       <main className="mx-auto grid max-w-6xl gap-8 px-6 py-8 lg:grid-cols-[1fr_1.1fr]">
         <section className="rounded-2xl border border-[oklch(0.9_0.02_80)] bg-white p-6 shadow-sm">
-          <h2 className="mb-1 text-lg font-semibold">填写基础信息</h2>
+          <h2 className="mb-1 flex items-center justify-between text-lg font-semibold">
+            填写基础信息
+            <button
+              type="button"
+              onClick={() => setForm(EXAMPLE)}
+              className="text-xs font-normal text-[oklch(0.5_0.15_30)] hover:underline"
+            >
+              填入示例
+            </button>
+          </h2>
           <p className="mb-5 text-sm text-[oklch(0.5_0.02_60)]">
             写下你今天对学员的真实观察，AI 会帮你整理成一份温暖的报告海报。
           </p>
