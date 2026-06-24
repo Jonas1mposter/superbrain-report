@@ -60,7 +60,7 @@ export const PRESETS: { name: string; template: PosterTemplate }[] = [
       sections: {
         highlight: { enabled: true, tag: "⭐ 闪光点", tone: "violet" },
         stuck: { enabled: true, tag: "🧩 待解锁", tone: "slate" },
-        improve: { enabled: true, tag: "🚀 明日行动", tone: "cool" },
+        improve: { enabled: true, tag: "💌 给家长的话", tone: "cool" },
       },
     },
   },
