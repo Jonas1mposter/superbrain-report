@@ -400,6 +400,7 @@ function Index() {
               )}
             </Field>
 
+            <Field label="今日观察记录">
               <textarea
                 required
                 rows={8}
