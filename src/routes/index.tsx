@@ -121,6 +121,27 @@ function Index() {
     URL.revokeObjectURL(url);
   }
 
+  const [exporting, setExporting] = useState(false);
+  async function downloadImage() {
+    if (!result || !posterRef.current) return;
+    setExporting(true);
+    try {
+      const { toPng } = await import("html-to-image");
+      const dataUrl = await toPng(posterRef.current, {
+        pixelRatio: 2,
+        cacheBust: true,
+      });
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `${result.meta.studentName}-Day${result.meta.day}-观察报告.png`;
+      a.click();
+    } catch (err) {
+      alert("导出图片失败：" + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setExporting(false);
+    }
+  }
+
   function applyPreset(idx: number) {
     setTemplate(PRESETS[idx].template);
   }
