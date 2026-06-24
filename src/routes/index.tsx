@@ -518,7 +518,7 @@ function Index() {
 }
 
 function sectionLabel(k: SectionKey) {
-  return k === "highlight" ? "今日高光" : k === "stuck" ? "今日卡点" : "如何进步";
+  return k === "highlight" ? "今日高光" : k === "stuck" ? "今日卡点" : "给家长的建议";
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
