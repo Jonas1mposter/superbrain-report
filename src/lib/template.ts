@@ -45,8 +45,8 @@ export const PRESETS: { name: string; template: PosterTemplate }[] = [
       themeTo: "oklch(0.82 0.13 160)",
       sections: {
         highlight: { enabled: true, tag: "🌱 亮点", tone: "green" },
-        stuck: { enabled: true, tag: "💭 思考点", tone: "cool" },
-        improve: { enabled: true, tag: "🎯 下一步", tone: "violet" },
+        stuck: { enabled: true, tag: "💭 卡点", tone: "cool" },
+        improve: { enabled: true, tag: "💌 家长可以这样陪伴", tone: "violet" },
       },
     },
   },
