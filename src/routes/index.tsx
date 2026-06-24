@@ -470,12 +470,21 @@ function Index() {
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">海报预览</h2>
             {result && (
-              <button
-                onClick={downloadHtml}
-                className="rounded-lg border border-[oklch(0.85_0.03_60)] bg-white px-3 py-1.5 text-xs font-medium hover:bg-[oklch(0.96_0.02_80)]"
-              >
-                下载 HTML 海报
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={downloadImage}
+                  disabled={exporting}
+                  className="rounded-lg bg-[oklch(0.55_0.18_30)] px-3 py-1.5 text-xs font-medium text-white hover:bg-[oklch(0.5_0.18_30)] disabled:opacity-60"
+                >
+                  {exporting ? "导出中…" : "📷 导出图片"}
+                </button>
+                <button
+                  onClick={downloadHtml}
+                  className="rounded-lg border border-[oklch(0.85_0.03_60)] bg-white px-3 py-1.5 text-xs font-medium hover:bg-[oklch(0.96_0.02_80)]"
+                >
+                  下载 HTML
+                </button>
+              </div>
             )}
           </div>
           {result ? (
