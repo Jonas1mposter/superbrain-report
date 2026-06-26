@@ -76,7 +76,7 @@ ${data.observations}`;
       },
       body: JSON.stringify({
         model: "kimi-k2.6",
-        temperature: 1,
+        temperature: 0.3,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: systemPrompt },
