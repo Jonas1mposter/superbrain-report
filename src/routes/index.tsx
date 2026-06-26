@@ -129,7 +129,7 @@ function Index() {
       const { toPng } = await import("html-to-image");
       const dataUrl = await toPng(posterRef.current, {
         pixelRatio: 2,
-        cacheBust: true,
+        cacheBust: false,
       });
       const a = document.createElement("a");
       a.href = dataUrl;
