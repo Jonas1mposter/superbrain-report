@@ -126,8 +126,30 @@ function Index() {
     if (!result || !posterRef.current) return;
     setExporting(true);
     try {
+      const node = posterRef.current;
+      // Ensure every <img> (including the user-uploaded data: URL) is fully
+      // decoded before snapshotting; otherwise html-to-image will rasterize
+      // before the bitmap is ready and produce a poster with the image
+      // area missing.
+      const imgs = Array.from(node.querySelectorAll("img"));
+      await Promise.all(
+        imgs.map((img) =>
+          img.complete && img.naturalWidth > 0
+            ? Promise.resolve()
+            : img.decode().catch(
+                () =>
+                  new Promise<void>((resolve) => {
+                    img.onload = () => resolve();
+                    img.onerror = () => resolve();
+                  }),
+              ),
+        ),
+      );
+      // Give the browser one more frame to commit layout after decode.
+      await new Promise((r) => requestAnimationFrame(() => r(null)));
+
       const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(posterRef.current, {
+      const dataUrl = await toPng(node, {
         pixelRatio: 2,
         cacheBust: false,
       });
@@ -141,6 +163,7 @@ function Index() {
       setExporting(false);
     }
   }
+
 
   function applyPreset(idx: number) {
     setTemplate(PRESETS[idx].template);
