@@ -79,7 +79,34 @@ function Index() {
       return;
     }
     const reader = new FileReader();
-    reader.onload = () => setImage(reader.result as string);
+    reader.onload = async () => {
+      const raw = reader.result as string;
+      // Normalize via canvas so the resulting data URL is a freshly-encoded
+      // PNG/JPEG bitmap. This avoids html-to-image edge cases where the
+      // original file's encoding (HEIC-converted, large progressive JPEG,
+      // etc.) fails to embed into the exported poster.
+      try {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error("decode failed"));
+          img.src = raw;
+        });
+        const maxW = 1200;
+        const scale = Math.min(1, maxW / img.naturalWidth);
+        const w = Math.round(img.naturalWidth * scale);
+        const h = Math.round(img.naturalHeight * scale);
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0, w, h);
+        setImage(canvas.toDataURL("image/jpeg", 0.92));
+      } catch {
+        setImage(raw);
+      }
+    };
     reader.readAsDataURL(file);
   }
 
