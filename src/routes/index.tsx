@@ -108,6 +108,7 @@ function Index() {
       }
     };
     reader.readAsDataURL(file);
+  }
 
   useEffect(() => {
     setSavedNames(Object.keys(loadStoredTemplates()));
