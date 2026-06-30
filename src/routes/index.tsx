@@ -737,7 +737,7 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl bg-white px-6 py-5 ring-1 ring-[#e4ecf6] shadow-[0_2px_10px_-4px_rgba(59,130,246,0.08)]">
+    <div className="rounded-2xl bg-white px-5 py-4 ring-1 ring-[#e4ecf6] shadow-[0_2px_10px_-4px_rgba(59,130,246,0.08)] sm:px-6 sm:py-5">
       <div className="mb-3 flex items-center gap-2.5">
         <span
           aria-hidden
@@ -745,11 +745,11 @@ function SectionCard({
         >
           <span className="inline-block h-2 w-2 rounded-sm bg-[#3b82f6]" />
         </span>
-        <span className="text-[14px] font-semibold text-[#3b82f6]">
+        <span className="text-[13px] font-semibold text-[#3b82f6] sm:text-[14px]">
           {tag} <span className="text-[#94a3b8] font-medium">/ {en}</span>
         </span>
       </div>
-      <div className="text-[14px] leading-[1.75] text-[#334155]">{children}</div>
+      <div className="text-[14px] leading-[1.75] text-[#334155] sm:text-[15px]">{children}</div>
     </div>
   );
 }
