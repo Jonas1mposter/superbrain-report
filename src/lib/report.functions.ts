@@ -13,15 +13,15 @@ const InputSchema = z.object({
 const ReportSchema = z.object({
   highlight: z.object({
     title: z.string(),
-    detail: z.string(),
+    points: z.array(z.string()).min(2).max(3),
   }),
   stuck: z.object({
     title: z.string(),
-    detail: z.string(),
+    points: z.array(z.string()).min(1).max(2),
   }),
   improve: z.object({
     title: z.string(),
-    steps: z.array(z.string()).min(2).max(5),
+    steps: z.array(z.string()).min(1).max(1),
   }),
   encouragement: z.string(),
 });
