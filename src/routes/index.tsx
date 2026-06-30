@@ -793,15 +793,15 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
   .card-root{position:relative;max-width:640px;margin:0 auto;background:linear-gradient(180deg,#eaf2fb 0%,#f3f7fc 35%,#ffffff 100%);padding:48px 36px 40px;overflow:hidden;border-radius:4px}
   .topbar{position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,#3b82f6 0%,#93c5fd 60%,transparent 100%)}
   .deco{position:absolute;right:24px;top:36px;width:140px;height:140px;border-radius:24px;background:rgba(186,214,242,.35)}
-  .kicker{position:relative;font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:#3b82f6;display:flex;align-items:center;gap:10px}
+  .kicker{position:relative;font-size:13px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:#3b82f6;display:flex;align-items:center;gap:10px}
   .kicker::before{content:"";display:inline-block;width:30px;height:1px;background:#3b82f6}
-  h1{position:relative;font-size:34px;font-weight:900;margin:18px 0 18px;letter-spacing:-.01em;line-height:1.1;color:#0b1b35}
+  h1{position:relative;font-size:40px;font-weight:900;margin:18px 0 18px;letter-spacing:-.01em;line-height:1.1;color:#0b1b35}
   h1 .blue{color:#3b82f6}
-  .day{position:relative;display:inline-block;background:#3b82f6;color:#fff;border-radius:9999px;padding:6px 18px;font-size:14px;font-weight:600;box-shadow:0 6px 16px -6px rgba(59,130,246,.6)}
+  .day{position:relative;display:inline-block;background:#3b82f6;color:#fff;border-radius:9999px;padding:6px 18px;font-size:16px;font-weight:600;box-shadow:0 6px 16px -6px rgba(59,130,246,.6)}
   .student{position:relative;margin-top:32px;background:rgba(255,255,255,.7);border:1px solid #dbe6f4;border-radius:18px;padding:22px 26px;display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
-  .student .lbl{font-size:11px;letter-spacing:.4em;color:#94a3b8;font-weight:500}
-  .student .name{font-size:28px;font-weight:700;margin-top:8px;color:#0b1b35}
-  .student .state{font-size:14px;font-weight:600;color:#3b82f6;margin-top:8px}
+  .student .lbl{font-size:13px;letter-spacing:.4em;color:#94a3b8;font-weight:500}
+  .student .name{font-size:32px;font-weight:700;margin-top:8px;color:#0b1b35}
+  .student .state{font-size:16px;font-weight:600;color:#3b82f6;margin-top:8px}
   .figure{position:relative;margin:20px 0 0;border:1px solid #dbe6f4;background:#fff;border-radius:18px;overflow:hidden}
   .figure img{display:block;width:100%;max-height:360px;object-fit:cover}
   .sections{position:relative;margin-top:22px;display:flex;flex-direction:column;gap:18px}
@@ -809,19 +809,19 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
   .cardhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
   .ico{display:inline-block;width:24px;height:24px;border-radius:7px;background:#eaf2fb;position:relative}
   .ico::after{content:"";position:absolute;left:8px;top:8px;width:8px;height:8px;border-radius:2px;background:#3b82f6}
-  .tag{font-size:14px;font-weight:600;color:#3b82f6}
+  .tag{font-size:16px;font-weight:600;color:#3b82f6}
   .tag em{font-style:normal;color:#94a3b8;font-weight:500}
-  .cardbody{font-size:14px;line-height:1.75;color:#334155}
+  .cardbody{font-size:17px;line-height:1.75;color:#334155}
   .cardbody ul{margin:0;padding-left:18px}
   .cardbody ul li{margin:4px 0}
   .trait{position:relative;margin-top:24px;background:#1f2a3d;border-radius:18px;padding:24px 28px;text-align:center}
-  .trait .l{font-size:12px;font-weight:600;letter-spacing:.32em;color:#7eb6ff}
-  .trait .q{margin-top:10px;font-size:16px;font-style:italic;color:#fff;line-height:1.6}
+  .trait .l{font-size:14px;font-weight:600;letter-spacing:.32em;color:#7eb6ff}
+  .trait .q{margin-top:10px;font-size:19px;font-style:italic;color:#fff;line-height:1.6}
   .coach{position:relative;margin-top:32px;text-align:center}
-  .coach .l{font-size:12px;font-weight:600;letter-spacing:.32em;color:#3b82f6}
-  .coach .q{margin-top:6px;font-size:16px;font-weight:700;color:#0b1b35}
-  .meta{position:relative;margin-top:32px;display:flex;justify-content:center;gap:32px;font-size:13px;color:#64748b}
-  .foot{position:relative;margin-top:20px;text-align:center;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#94a3b8}
+  .coach .l{font-size:14px;font-weight:600;letter-spacing:.32em;color:#3b82f6}
+  .coach .q{margin-top:6px;font-size:19px;font-weight:700;color:#0b1b35}
+  .meta{position:relative;margin-top:32px;display:flex;justify-content:center;gap:32px;font-size:15px;color:#64748b}
+  .foot{position:relative;margin-top:20px;text-align:center;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#94a3b8}
   @media (max-width:520px){
     body{padding:14px 8px}
     .card-root{padding:32px 20px 28px;border-radius:14px}
