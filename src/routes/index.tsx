@@ -795,6 +795,9 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
       ? `<div class="card"><div class="cardhead"><span class="ico"></span><span class="tag">${esc(tag)} <em>/ ${en}</em></span></div><div class="cardbody">${inner}</div></div>`
       : "";
 
+  const radarHtml = `<div class="radar">${buildRadarSvg(report.highlight.radar)}</div>`;
+
+
   const imgHtml = image
     ? `<figure class="figure"><img src="${esc(image)}" alt=""/></figure>`
     : "";
