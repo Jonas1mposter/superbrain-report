@@ -589,14 +589,13 @@ const Poster = forwardRef<
   return (
     <div
       ref={ref}
-      className="relative overflow-hidden"
+      className="relative overflow-hidden px-6 py-9 sm:px-11 sm:py-14"
       style={{
         background:
           "linear-gradient(180deg, #eaf2fb 0%, #f3f7fc 35%, #ffffff 100%)",
         color: "#0f1f3a",
         fontFamily:
           '-apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif',
-        padding: "56px 44px 48px",
       }}
     >
       {/* top thin accent bar */}
@@ -608,39 +607,39 @@ const Poster = forwardRef<
       {/* decorative soft square */}
       <div
         aria-hidden
-        className="pointer-events-none absolute right-8 top-10 h-40 w-40 rounded-[28px]"
+        className="pointer-events-none absolute right-5 top-8 h-24 w-24 rounded-[20px] sm:right-8 sm:top-10 sm:h-40 sm:w-40 sm:rounded-[28px]"
         style={{ background: "rgba(186,214,242,0.35)" }}
       />
 
       {/* header */}
       <div className="relative">
-        <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#3b82f6]">
-          <span className="inline-block h-px w-8 bg-[#3b82f6]" />
+        <div className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#3b82f6] sm:text-[11px] sm:tracking-[0.28em]">
+          <span className="inline-block h-px w-6 bg-[#3b82f6] sm:w-8" />
           Observation Report
         </div>
         <h1
-          className="mt-5 text-[40px] font-black leading-[1.1] tracking-tight text-[#0b1b35]"
+          className="mt-4 text-[26px] font-black leading-[1.15] tracking-tight text-[#0b1b35] sm:mt-5 sm:text-[40px] sm:leading-[1.1]"
           style={{ letterSpacing: "-0.01em" }}
         >
           AI for Good 冬令营
           <br />
           <span className="text-[#3b82f6]">学员观察报告</span>
         </h1>
-        <div className="mt-5 inline-flex items-center rounded-full bg-[#3b82f6] px-5 py-1.5 text-[15px] font-semibold text-white shadow-[0_6px_16px_-6px_rgba(59,130,246,0.6)]">
+        <div className="mt-4 inline-flex items-center rounded-full bg-[#3b82f6] px-4 py-1 text-[13px] font-semibold text-white shadow-[0_6px_16px_-6px_rgba(59,130,246,0.6)] sm:mt-5 sm:px-5 sm:py-1.5 sm:text-[15px]">
           Day {meta.day}
         </div>
       </div>
 
       {/* student card */}
-      <div className="relative mt-10 rounded-2xl bg-white/70 px-7 py-6 backdrop-blur-sm ring-1 ring-[#dbe6f4]">
-        <div className="flex items-start justify-between gap-6">
-          <div>
-            <div className="text-[12px] font-medium tracking-[0.4em] text-[#94a3b8]">学　员</div>
-            <div className="mt-2 text-[30px] font-bold text-[#0b1b35]">{meta.studentName}</div>
+      <div className="relative mt-7 rounded-2xl bg-white/70 px-5 py-5 backdrop-blur-sm ring-1 ring-[#dbe6f4] sm:mt-10 sm:px-7 sm:py-6">
+        <div className="flex items-start justify-between gap-4 sm:gap-6">
+          <div className="min-w-0">
+            <div className="text-[10px] font-medium tracking-[0.32em] text-[#94a3b8] sm:text-[12px] sm:tracking-[0.4em]">学　员</div>
+            <div className="mt-2 truncate text-[22px] font-bold text-[#0b1b35] sm:text-[30px]">{meta.studentName}</div>
           </div>
-          <div className="text-right">
-            <div className="text-[12px] font-medium tracking-[0.4em] text-[#94a3b8]">今 日 状 态</div>
-            <div className="mt-2 text-[15px] font-semibold text-[#3b82f6]">
+          <div className="shrink-0 text-right">
+            <div className="text-[10px] font-medium tracking-[0.32em] text-[#94a3b8] sm:text-[12px] sm:tracking-[0.4em]">今 日 状 态</div>
+            <div className="mt-2 text-[13px] font-semibold text-[#3b82f6] sm:text-[15px]">
               ↑ 持续观察中
             </div>
           </div>
@@ -649,13 +648,13 @@ const Poster = forwardRef<
 
       {/* image (optional) */}
       {image && (
-        <figure className="relative mt-6 overflow-hidden rounded-2xl ring-1 ring-[#dbe6f4] bg-white">
-          <img src={image} alt="" className="block max-h-[360px] w-full object-cover" />
+        <figure className="relative mt-5 overflow-hidden rounded-2xl ring-1 ring-[#dbe6f4] bg-white sm:mt-6">
+          <img src={image} alt="" className="block max-h-[260px] w-full object-cover sm:max-h-[360px]" />
         </figure>
       )}
 
       {/* sections */}
-      <div className="relative mt-6 space-y-5">
+      <div className="relative mt-5 space-y-4 sm:mt-6 sm:space-y-5">
         {template.sections.highlight.enabled && (
           <SectionCard tag={template.sections.highlight.tag} en="HIGHLIGHTS">
             <p className="whitespace-pre-line">{report.highlight.detail}</p>
@@ -679,28 +678,28 @@ const Poster = forwardRef<
 
       {/* core trait / encouragement dark card */}
       {template.showEncouragement && (
-        <div className="relative mt-7 rounded-2xl bg-[#1f2a3d] px-8 py-7 text-center">
-          <div className="text-[12px] font-semibold tracking-[0.32em] text-[#7eb6ff]">
+        <div className="relative mt-6 rounded-2xl bg-[#1f2a3d] px-6 py-6 text-center sm:mt-7 sm:px-8 sm:py-7">
+          <div className="text-[11px] font-semibold tracking-[0.28em] text-[#7eb6ff] sm:text-[12px] sm:tracking-[0.32em]">
             核心特质 / TRAIT
           </div>
-          <div className="mt-3 text-[17px] italic leading-relaxed text-white">
+          <div className="mt-3 text-[15px] italic leading-relaxed text-white sm:text-[17px]">
             "{report.encouragement}"
           </div>
         </div>
       )}
 
       {/* coach line */}
-      <div className="relative mt-9 text-center">
-        <div className="text-[12px] font-semibold tracking-[0.32em] text-[#3b82f6]">
+      <div className="relative mt-7 text-center sm:mt-9">
+        <div className="text-[11px] font-semibold tracking-[0.28em] text-[#3b82f6] sm:text-[12px] sm:tracking-[0.32em]">
           教练反馈
         </div>
-        <div className="mt-2 text-[17px] font-bold text-[#0b1b35]">
+        <div className="mt-2 text-[15px] font-bold text-[#0b1b35] sm:text-[17px]">
           "{report.highlight.title}"
         </div>
       </div>
 
       {/* footer meta */}
-      <div className="relative mt-10 flex items-center justify-center gap-8 text-[13px] text-[#64748b]">
+      <div className="relative mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] text-[#64748b] sm:mt-10 sm:gap-8 sm:text-[13px]">
         {template.showMentor && meta.mentor && (
           <span className="inline-flex items-center gap-1.5">
             <span className="inline-block h-2 w-2 rounded-full ring-1 ring-[#64748b]" />
@@ -714,7 +713,7 @@ const Poster = forwardRef<
       </div>
 
       {template.footer && (
-        <div className="relative mt-6 text-center text-[10px] uppercase tracking-[0.24em] text-[#94a3b8]">
+        <div className="relative mt-5 text-center text-[10px] uppercase tracking-[0.22em] text-[#94a3b8] sm:mt-6 sm:tracking-[0.24em]">
           {template.footer}
         </div>
       )}
@@ -738,7 +737,7 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl bg-white px-6 py-5 ring-1 ring-[#e4ecf6] shadow-[0_2px_10px_-4px_rgba(59,130,246,0.08)]">
+    <div className="rounded-2xl bg-white px-5 py-4 ring-1 ring-[#e4ecf6] shadow-[0_2px_10px_-4px_rgba(59,130,246,0.08)] sm:px-6 sm:py-5">
       <div className="mb-3 flex items-center gap-2.5">
         <span
           aria-hidden
@@ -746,11 +745,11 @@ function SectionCard({
         >
           <span className="inline-block h-2 w-2 rounded-sm bg-[#3b82f6]" />
         </span>
-        <span className="text-[14px] font-semibold text-[#3b82f6]">
+        <span className="text-[13px] font-semibold text-[#3b82f6] sm:text-[14px]">
           {tag} <span className="text-[#94a3b8] font-medium">/ {en}</span>
         </span>
       </div>
-      <div className="text-[14px] leading-[1.75] text-[#334155]">{children}</div>
+      <div className="text-[14px] leading-[1.75] text-[#334155] sm:text-[15px]">{children}</div>
     </div>
   );
 }
@@ -806,6 +805,26 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
   .coach .q{margin-top:6px;font-size:16px;font-weight:700;color:#0b1b35}
   .meta{position:relative;margin-top:32px;display:flex;justify-content:center;gap:32px;font-size:13px;color:#64748b}
   .foot{position:relative;margin-top:20px;text-align:center;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#94a3b8}
+  @media (max-width:520px){
+    body{padding:14px 8px}
+    .card-root{padding:32px 20px 28px;border-radius:14px}
+    .deco{width:90px;height:90px;right:14px;top:24px;border-radius:18px}
+    h1{font-size:24px;margin:14px 0 14px}
+    .day{font-size:13px;padding:5px 14px}
+    .student{margin-top:22px;padding:16px 18px;border-radius:14px;gap:14px}
+    .student .name{font-size:21px;margin-top:6px}
+    .student .lbl{font-size:10px;letter-spacing:.28em}
+    .student .state{font-size:13px;margin-top:6px}
+    .figure{border-radius:14px}
+    .figure img{max-height:240px}
+    .sections{margin-top:18px;gap:14px}
+    .card{padding:16px 18px;border-radius:14px}
+    .cardbody{font-size:14px}
+    .trait{padding:20px 18px;border-radius:14px}
+    .trait .q{font-size:15px}
+    .coach .q{font-size:15px}
+    .meta{gap:18px;flex-wrap:wrap;font-size:12px;margin-top:24px}
+  }
 </style></head><body>
 <div class="card-root">
   <div class="topbar"></div>
