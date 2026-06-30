@@ -674,6 +674,10 @@ const Poster = forwardRef<
       <div className="relative mt-5 space-y-4 sm:mt-6 sm:space-y-5">
         {template.sections.highlight.enabled && (
           <SectionCard tag={template.sections.highlight.tag} en="HIGHLIGHTS">
+            <div
+              className="mb-3 flex justify-center"
+              dangerouslySetInnerHTML={{ __html: buildRadarSvg(report.highlight.radar) }}
+            />
             <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
               {report.highlight.points.map((p, i) => (
                 <li key={i}>{p}</li>
@@ -681,6 +685,7 @@ const Poster = forwardRef<
             </ul>
           </SectionCard>
         )}
+
         {template.sections.stuck.enabled && (
           <SectionCard tag={template.sections.stuck.tag} en="REFLECTION">
             <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
@@ -790,6 +795,9 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
       ? `<div class="card"><div class="cardhead"><span class="ico"></span><span class="tag">${esc(tag)} <em>/ ${en}</em></span></div><div class="cardbody">${inner}</div></div>`
       : "";
 
+  const radarHtml = `<div class="radar">${buildRadarSvg(report.highlight.radar)}</div>`;
+
+
   const imgHtml = image
     ? `<figure class="figure"><img src="${esc(image)}" alt=""/></figure>`
     : "";
@@ -865,7 +873,7 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
   </div>
   ${imgHtml}
   <div class="sections">
-    ${section(t.sections.highlight.tag, "HIGHLIGHTS", `<ul>${highlightPoints}</ul>`, t.sections.highlight.enabled)}
+    ${section(t.sections.highlight.tag, "HIGHLIGHTS", `${radarHtml}<ul>${highlightPoints}</ul>`, t.sections.highlight.enabled)}
     ${section(t.sections.stuck.tag, "REFLECTION", `<ul>${stuckPoints}</ul>`, t.sections.stuck.enabled)}
     ${section(t.sections.improve.tag, "FOR PARENTS", `<ul>${steps}</ul>`, t.sections.improve.enabled)}
   </div>
@@ -892,3 +900,71 @@ function esc(s: string) {
     (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!,
   );
 }
+
+function buildRadarSvg(radar: DailyReport["highlight"]["radar"]) {
+  const dims: Array<{ key: keyof typeof radar; label: string }> = [
+    { key: "主动性", label: "主动性" },
+    { key: "协作", label: "协作" },
+    { key: "创造力", label: "创造力" },
+    { key: "同理心", label: "同理心" },
+    { key: "韧性", label: "韧性" },
+    { key: "表达", label: "表达" },
+  ];
+  const cx = 150;
+  const cy = 140;
+  const R = 80;
+  const N = dims.length;
+  const angle = (i: number) => (Math.PI * 2 * i) / N - Math.PI / 2;
+  const pt = (i: number, r: number) => [cx + Math.cos(angle(i)) * r, cy + Math.sin(angle(i)) * r];
+
+  const rings = [1, 2, 3, 4, 5]
+    .map((lvl) => {
+      const r = (R * lvl) / 5;
+      const pts = dims
+        .map((_, i) => {
+          const [x, y] = pt(i, r);
+          return `${x.toFixed(1)},${y.toFixed(1)}`;
+        })
+        .join(" ");
+      return `<polygon points="${pts}" fill="none" stroke="#dbe6f4" stroke-width="1"/>`;
+    })
+    .join("");
+
+  const spokes = dims
+    .map((_, i) => {
+      const [x, y] = pt(i, R);
+      return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#e4ecf6" stroke-width="1"/>`;
+    })
+    .join("");
+
+  const dataPts = dims
+    .map((d, i) => {
+      const v = Math.max(1, Math.min(5, Number(radar[d.key]) || 3));
+      const [x, y] = pt(i, (R * v) / 5);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+
+  const dots = dims
+    .map((d, i) => {
+      const v = Math.max(1, Math.min(5, Number(radar[d.key]) || 3));
+      const [x, y] = pt(i, (R * v) / 5);
+      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="#3b82f6"/>`;
+    })
+    .join("");
+
+  const labels = dims
+    .map((d, i) => {
+      const [x, y] = pt(i, R + 18);
+      const a = angle(i);
+      let anchor = "middle";
+      if (Math.cos(a) > 0.3) anchor = "start";
+      else if (Math.cos(a) < -0.3) anchor = "end";
+      const v = Math.max(1, Math.min(5, Number(radar[d.key]) || 3));
+      return `<text x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="${anchor}" font-size="13" font-weight="600" fill="#0b1b35">${esc(d.label)}<tspan fill="#3b82f6" font-weight="700"> ${v}</tspan></text>`;
+    })
+    .join("");
+
+  return `<svg viewBox="0 0 300 260" width="100%" style="max-width:300px;display:block;margin:0 auto" xmlns="http://www.w3.org/2000/svg" aria-label="六维能力雷达图">${rings}${spokes}<polygon points="${dataPts}" fill="rgba(59,130,246,0.22)" stroke="#3b82f6" stroke-width="2" stroke-linejoin="round"/>${dots}${labels}</svg>`;
+}
+
