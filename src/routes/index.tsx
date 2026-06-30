@@ -674,12 +674,20 @@ const Poster = forwardRef<
       <div className="relative mt-5 space-y-4 sm:mt-6 sm:space-y-5">
         {template.sections.highlight.enabled && (
           <SectionCard tag={template.sections.highlight.tag} en="HIGHLIGHTS">
-            <p className="whitespace-pre-line">{report.highlight.detail}</p>
+            <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
+              {report.highlight.points.map((p, i) => (
+                <li key={i}>{p}</li>
+              ))}
+            </ul>
           </SectionCard>
         )}
         {template.sections.stuck.enabled && (
           <SectionCard tag={template.sections.stuck.tag} en="REFLECTION">
-            <p className="whitespace-pre-line">{report.stuck.detail}</p>
+            <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
+              {report.stuck.points.map((p, i) => (
+                <li key={i}>{p}</li>
+              ))}
+            </ul>
           </SectionCard>
         )}
         {template.sections.improve.enabled && (
