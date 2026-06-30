@@ -651,12 +651,12 @@ const Poster = forwardRef<
       <div className="relative mt-7 rounded-2xl bg-white/70 px-5 py-5 backdrop-blur-sm ring-1 ring-[#dbe6f4] sm:mt-10 sm:px-7 sm:py-6">
         <div className="flex items-start justify-between gap-4 sm:gap-6">
           <div className="min-w-0">
-            <div className="text-[10px] font-medium tracking-[0.32em] text-[#94a3b8] sm:text-[12px] sm:tracking-[0.4em]">学　员</div>
-            <div className="mt-2 truncate text-[22px] font-bold text-[#0b1b35] sm:text-[30px]">{meta.studentName}</div>
+            <div className="text-[12px] font-medium tracking-[0.32em] text-[#94a3b8] sm:text-[14px] sm:tracking-[0.4em]">学　员</div>
+            <div className="mt-2 truncate text-[26px] font-bold text-[#0b1b35] sm:text-[34px]">{meta.studentName}</div>
           </div>
           <div className="shrink-0 text-right">
-            <div className="text-[10px] font-medium tracking-[0.32em] text-[#94a3b8] sm:text-[12px] sm:tracking-[0.4em]">今 日 状 态</div>
-            <div className="mt-2 text-[13px] font-semibold text-[#3b82f6] sm:text-[15px]">
+            <div className="text-[12px] font-medium tracking-[0.32em] text-[#94a3b8] sm:text-[14px] sm:tracking-[0.4em]">今 日 状 态</div>
+            <div className="mt-2 text-[15px] font-semibold text-[#3b82f6] sm:text-[17px]">
               ↑ 持续观察中
             </div>
           </div>
