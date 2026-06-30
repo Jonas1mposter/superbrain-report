@@ -586,144 +586,171 @@ const Poster = forwardRef<
 >(function Poster({ data, template, image }, ref) {
   const { report, meta } = data;
 
-  const enabledSections = SECTION_ORDER.filter((k) => template.sections[k].enabled);
-  const imageInsertAt = Math.min(1, Math.max(0, enabledSections.length - 1)); // after first section
-
-  const renderSection = (k: SectionKey) => {
-    if (k === "highlight")
-      return (
-        <Block key="highlight" cfg={template.sections.highlight} title={report.highlight.title}>
-          <p>{report.highlight.detail}</p>
-        </Block>
-      );
-    if (k === "stuck")
-      return (
-        <Block key="stuck" cfg={template.sections.stuck} title={report.stuck.title}>
-          <p>{report.stuck.detail}</p>
-        </Block>
-      );
-    return (
-      <Block key="improve" cfg={template.sections.improve} title={report.improve.title}>
-        <ul className="ml-4 list-disc space-y-1.5 marker:text-[oklch(0.6_0.15_30)]">
-          {report.improve.steps.map((s, i) => (
-            <li key={i}>{s}</li>
-          ))}
-        </ul>
-      </Block>
-    );
-  };
-
-  const imageBlock = image ? (
-    <figure
-      key="image"
-      className="overflow-hidden rounded-2xl border border-white/70 bg-[oklch(0.97_0.01_80)] p-2 shadow-[0_8px_24px_-12px_rgba(80,40,20,0.25)]"
-    >
-      <img
-        src={image}
-        alt="海报配图"
-        className="block max-h-[360px] w-full rounded-xl object-contain"
-      />
-    </figure>
-  ) : null;
-
-  const sectionItems: React.ReactNode[] = enabledSections.map(renderSection);
-  if (imageBlock) sectionItems.splice(imageInsertAt, 0, imageBlock);
-
   return (
     <div
       ref={ref}
-      className="relative overflow-hidden rounded-[28px] shadow-[0_30px_80px_-30px_rgba(120,60,30,0.45)]"
+      className="relative overflow-hidden"
       style={{
-        background: `linear-gradient(160deg, ${template.themeFrom} 0%, ${template.themeVia} 55%, ${template.themeTo} 100%)`,
-        color: "oklch(0.2 0.03 60)",
+        background:
+          "linear-gradient(180deg, #eaf2fb 0%, #f3f7fc 35%, #ffffff 100%)",
+        color: "#0f1f3a",
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif',
+        padding: "56px 44px 48px",
       }}
     >
-      {/* decorative blobs */}
+      {/* top thin accent bar */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full opacity-40 blur-3xl"
-        style={{ background: "oklch(0.85 0.12 50)" }}
+        className="absolute left-0 right-0 top-0 h-[5px]"
+        style={{ background: "linear-gradient(90deg,#3b82f6 0%,#93c5fd 60%,transparent 100%)" }}
       />
+      {/* decorative soft square */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full opacity-30 blur-3xl"
-        style={{ background: "oklch(0.85 0.1 350)" }}
+        className="pointer-events-none absolute right-8 top-10 h-40 w-40 rounded-[28px]"
+        style={{ background: "rgba(186,214,242,0.35)" }}
       />
 
-      <div className="relative px-8 pt-8">
-        <div className="flex items-center justify-between text-[10px] font-medium uppercase tracking-[0.22em] text-[oklch(0.4_0.05_40)]">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[oklch(0.55_0.18_30)]" />
-            AI for Good · Summer Camp
-          </span>
-          <span className="rounded-full bg-white/60 px-2.5 py-0.5 text-[10px] text-[oklch(0.35_0.1_30)]">
-            Day {meta.day} / 7
-          </span>
+      {/* header */}
+      <div className="relative">
+        <div className="flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#3b82f6]">
+          <span className="inline-block h-px w-8 bg-[#3b82f6]" />
+          Observation Report
         </div>
-        <h3 className="mt-5 text-[28px] font-bold leading-[1.15] tracking-tight text-[oklch(0.22_0.05_40)]">
-          {meta.studentName} 的第 {meta.day} 天
-        </h3>
-        <p className="mt-2 text-sm text-[oklch(0.42_0.05_40)]">
-          {meta.date}
-          {meta.project ? ` · ${meta.project}` : ""}
-          {template.showMentor && meta.mentor ? ` · 导师 ${meta.mentor}` : ""}
-        </p>
-        <div className="mt-5 h-px w-full bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+        <h1
+          className="mt-5 text-[40px] font-black leading-[1.1] tracking-tight text-[#0b1b35]"
+          style={{ letterSpacing: "-0.01em" }}
+        >
+          AI for Good 冬令营
+          <br />
+          <span className="text-[#3b82f6]">学员观察报告</span>
+        </h1>
+        <div className="mt-5 inline-flex items-center rounded-full bg-[#3b82f6] px-5 py-1.5 text-[15px] font-semibold text-white shadow-[0_6px_16px_-6px_rgba(59,130,246,0.6)]">
+          Day {meta.day}
+        </div>
       </div>
 
-      <div className="relative mt-5 space-y-3 px-8 pb-8">
-        {sectionItems}
-
-        {template.showEncouragement && (
-          <div
-            className="relative mt-5 rounded-2xl border border-white/70 bg-white/80 px-6 py-5 text-center text-[15px] italic backdrop-blur"
-            style={{ color: "oklch(0.35 0.1 30)" }}
-          >
-            <span className="absolute left-3 top-1 select-none font-serif text-4xl leading-none text-[oklch(0.55_0.18_30)]/40">
-              “
-            </span>
-            {report.encouragement}
-            <span className="absolute bottom-0 right-3 select-none font-serif text-4xl leading-none text-[oklch(0.55_0.18_30)]/40">
-              ”
-            </span>
+      {/* student card */}
+      <div className="relative mt-10 rounded-2xl bg-white/70 px-7 py-6 backdrop-blur-sm ring-1 ring-[#dbe6f4]">
+        <div className="flex items-start justify-between gap-6">
+          <div>
+            <div className="text-[12px] font-medium tracking-[0.4em] text-[#94a3b8]">学　员</div>
+            <div className="mt-2 text-[30px] font-bold text-[#0b1b35]">{meta.studentName}</div>
           </div>
-        )}
+          <div className="text-right">
+            <div className="text-[12px] font-medium tracking-[0.4em] text-[#94a3b8]">今 日 状 态</div>
+            <div className="mt-2 text-[15px] font-semibold text-[#3b82f6]">
+              ↑ 持续观察中
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <div className="pt-4 text-center text-[10px] uppercase tracking-[0.2em] text-[oklch(0.45_0.05_40)]">
+      {/* image (optional) */}
+      {image && (
+        <figure className="relative mt-6 overflow-hidden rounded-2xl ring-1 ring-[#dbe6f4] bg-white">
+          <img src={image} alt="" className="block max-h-[360px] w-full object-cover" />
+        </figure>
+      )}
+
+      {/* sections */}
+      <div className="relative mt-6 space-y-5">
+        {template.sections.highlight.enabled && (
+          <SectionCard tag={template.sections.highlight.tag} en="HIGHLIGHTS">
+            <p className="whitespace-pre-line">{report.highlight.detail}</p>
+          </SectionCard>
+        )}
+        {template.sections.stuck.enabled && (
+          <SectionCard tag={template.sections.stuck.tag} en="REFLECTION">
+            <p className="whitespace-pre-line">{report.stuck.detail}</p>
+          </SectionCard>
+        )}
+        {template.sections.improve.enabled && (
+          <SectionCard tag={template.sections.improve.tag} en="FOR PARENTS">
+            <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
+              {report.improve.steps.map((s, i) => (
+                <li key={i}>{s}</li>
+              ))}
+            </ul>
+          </SectionCard>
+        )}
+      </div>
+
+      {/* core trait / encouragement dark card */}
+      {template.showEncouragement && (
+        <div className="relative mt-7 rounded-2xl bg-[#1f2a3d] px-8 py-7 text-center">
+          <div className="text-[12px] font-semibold tracking-[0.32em] text-[#7eb6ff]">
+            核心特质 / TRAIT
+          </div>
+          <div className="mt-3 text-[17px] italic leading-relaxed text-white">
+            "{report.encouragement}"
+          </div>
+        </div>
+      )}
+
+      {/* coach line */}
+      <div className="relative mt-9 text-center">
+        <div className="text-[12px] font-semibold tracking-[0.32em] text-[#3b82f6]">
+          教练反馈
+        </div>
+        <div className="mt-2 text-[17px] font-bold text-[#0b1b35]">
+          "{report.highlight.title}"
+        </div>
+      </div>
+
+      {/* footer meta */}
+      <div className="relative mt-10 flex items-center justify-center gap-8 text-[13px] text-[#64748b]">
+        {template.showMentor && meta.mentor && (
+          <span className="inline-flex items-center gap-1.5">
+            <span className="inline-block h-2 w-2 rounded-full ring-1 ring-[#64748b]" />
+            观察教练：{meta.mentor}
+          </span>
+        )}
+        <span className="inline-flex items-center gap-1.5">
+          <span className="inline-block h-2 w-3 rounded-[3px] ring-1 ring-[#64748b]" />
+          {formatDateCn(meta.date)}
+        </span>
+      </div>
+
+      {template.footer && (
+        <div className="relative mt-6 text-center text-[10px] uppercase tracking-[0.24em] text-[#94a3b8]">
           {template.footer}
         </div>
-      </div>
+      )}
     </div>
   );
 });
 
-function Block({
-  cfg,
-  title,
+function formatDateCn(d: string) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d);
+  if (!m) return d;
+  return `${m[1]}年${Number(m[2])}月${Number(m[3])}日`;
+}
+
+function SectionCard({
+  tag,
+  en,
   children,
 }: {
-  cfg: SectionConfig;
-  title: string;
+  tag: string;
+  en: string;
   children: React.ReactNode;
 }) {
-  const tone = TONE_STYLES[cfg.tone];
   return (
-    <div
-      className="relative overflow-hidden rounded-2xl border border-white/80 bg-white/85 px-5 py-4 text-[14px] leading-relaxed backdrop-blur-sm shadow-[0_4px_16px_-8px_rgba(80,40,20,0.18)]"
-    >
-      <span
-        aria-hidden
-        className="absolute left-0 top-0 h-full w-1"
-        style={{ background: tone.accent }}
-      />
-      <div
-        className="mb-1.5 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em]"
-        style={{ background: tone.bg, color: tone.accent }}
-      >
-        {cfg.tag}
+    <div className="rounded-2xl bg-white px-6 py-5 ring-1 ring-[#e4ecf6] shadow-[0_2px_10px_-4px_rgba(59,130,246,0.08)]">
+      <div className="mb-3 flex items-center gap-2.5">
+        <span
+          aria-hidden
+          className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-[#eaf2fb] text-[#3b82f6]"
+        >
+          <span className="inline-block h-2 w-2 rounded-sm bg-[#3b82f6]" />
+        </span>
+        <span className="text-[14px] font-semibold text-[#3b82f6]">
+          {tag} <span className="text-[#94a3b8] font-medium">/ {en}</span>
+        </span>
       </div>
-      <div className="mb-1 text-[15px] font-semibold text-[oklch(0.22_0.04_60)]">{title}</div>
-      <div className="text-[oklch(0.32_0.03_60)]">{children}</div>
+      <div className="text-[14px] leading-[1.75] text-[#334155]">{children}</div>
     </div>
   );
 }
