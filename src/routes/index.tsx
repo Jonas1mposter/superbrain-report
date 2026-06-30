@@ -696,10 +696,10 @@ const Poster = forwardRef<
       {/* core trait / encouragement dark card */}
       {template.showEncouragement && (
         <div className="relative mt-6 rounded-2xl bg-[#1f2a3d] px-6 py-6 text-center sm:mt-7 sm:px-8 sm:py-7">
-          <div className="text-[11px] font-semibold tracking-[0.28em] text-[#7eb6ff] sm:text-[12px] sm:tracking-[0.32em]">
+          <div className="text-[13px] font-semibold tracking-[0.28em] text-[#7eb6ff] sm:text-[14px] sm:tracking-[0.32em]">
             核心特质 / TRAIT
           </div>
-          <div className="mt-3 text-[15px] italic leading-relaxed text-white sm:text-[17px]">
+          <div className="mt-3 text-[17px] italic leading-relaxed text-white sm:text-[20px]">
             "{report.encouragement}"
           </div>
         </div>
@@ -707,16 +707,16 @@ const Poster = forwardRef<
 
       {/* coach line */}
       <div className="relative mt-7 text-center sm:mt-9">
-        <div className="text-[11px] font-semibold tracking-[0.28em] text-[#3b82f6] sm:text-[12px] sm:tracking-[0.32em]">
+        <div className="text-[13px] font-semibold tracking-[0.28em] text-[#3b82f6] sm:text-[14px] sm:tracking-[0.32em]">
           教练反馈
         </div>
-        <div className="mt-2 text-[15px] font-bold text-[#0b1b35] sm:text-[17px]">
+        <div className="mt-2 text-[17px] font-bold text-[#0b1b35] sm:text-[20px]">
           "{report.highlight.title}"
         </div>
       </div>
 
       {/* footer meta */}
-      <div className="relative mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] text-[#64748b] sm:mt-10 sm:gap-8 sm:text-[13px]">
+      <div className="relative mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px] text-[#64748b] sm:mt-10 sm:gap-8 sm:text-[15px]">
         {template.showMentor && meta.mentor && (
           <span className="inline-flex items-center gap-1.5">
             <span className="inline-block h-2 w-2 rounded-full ring-1 ring-[#64748b]" />
@@ -730,7 +730,7 @@ const Poster = forwardRef<
       </div>
 
       {template.footer && (
-        <div className="relative mt-5 text-center text-[10px] uppercase tracking-[0.22em] text-[#94a3b8] sm:mt-6 sm:tracking-[0.24em]">
+        <div className="relative mt-5 text-center text-[12px] uppercase tracking-[0.22em] text-[#94a3b8] sm:mt-6 sm:tracking-[0.24em]">
           {template.footer}
         </div>
       )}
