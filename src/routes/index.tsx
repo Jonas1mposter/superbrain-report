@@ -630,19 +630,19 @@ const Poster = forwardRef<
 
       {/* header */}
       <div className="relative">
-        <div className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#3b82f6] sm:text-[11px] sm:tracking-[0.28em]">
+        <div className="flex items-center gap-3 text-[12px] font-semibold uppercase tracking-[0.24em] text-[#3b82f6] sm:text-[13px] sm:tracking-[0.28em]">
           <span className="inline-block h-px w-6 bg-[#3b82f6] sm:w-8" />
           Observation Report
         </div>
         <h1
-          className="mt-4 text-[26px] font-black leading-[1.15] tracking-tight text-[#0b1b35] sm:mt-5 sm:text-[40px] sm:leading-[1.1]"
+          className="mt-4 text-[30px] font-black leading-[1.15] tracking-tight text-[#0b1b35] sm:mt-5 sm:text-[48px] sm:leading-[1.1]"
           style={{ letterSpacing: "-0.01em" }}
         >
           AI for Good 冬令营
           <br />
           <span className="text-[#3b82f6]">学员观察报告</span>
         </h1>
-        <div className="mt-4 inline-flex items-center rounded-full bg-[#3b82f6] px-4 py-1 text-[13px] font-semibold text-white shadow-[0_6px_16px_-6px_rgba(59,130,246,0.6)] sm:mt-5 sm:px-5 sm:py-1.5 sm:text-[15px]">
+        <div className="mt-4 inline-flex items-center rounded-full bg-[#3b82f6] px-4 py-1 text-[15px] font-semibold text-white shadow-[0_6px_16px_-6px_rgba(59,130,246,0.6)] sm:mt-5 sm:px-5 sm:py-1.5 sm:text-[17px]">
           Day {meta.day}
         </div>
       </div>
