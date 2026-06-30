@@ -152,8 +152,20 @@ function Index() {
   async function downloadImage() {
     if (!result || !posterRef.current) return;
     setExporting(true);
+    const node = posterRef.current;
+    // Force a phone-friendly poster width during capture so the exported
+    // PNG looks good when shared to mobile (WeChat / 朋友圈), regardless of
+    // how wide the on-screen preview happens to be.
+    const EXPORT_WIDTH = 720;
+    const prev = {
+      width: node.style.width,
+      maxWidth: node.style.maxWidth,
+      minWidth: node.style.minWidth,
+    };
+    node.style.width = `${EXPORT_WIDTH}px`;
+    node.style.maxWidth = `${EXPORT_WIDTH}px`;
+    node.style.minWidth = `${EXPORT_WIDTH}px`;
     try {
-      const node = posterRef.current;
       // Ensure every <img> (including the user-uploaded data: URL) is fully
       // decoded before snapshotting; otherwise html-to-image will rasterize
       // before the bitmap is ready and produce a poster with the image
@@ -172,13 +184,15 @@ function Index() {
               ),
         ),
       );
-      // Give the browser one more frame to commit layout after decode.
+      // Give the browser one more frame to commit layout after resize+decode.
       await new Promise((r) => requestAnimationFrame(() => r(null)));
 
       const { toPng } = await import("html-to-image");
       const dataUrl = await toPng(node, {
         pixelRatio: 2,
         cacheBust: false,
+        width: EXPORT_WIDTH,
+        height: node.scrollHeight,
       });
       const a = document.createElement("a");
       a.href = dataUrl;
@@ -187,6 +201,9 @@ function Index() {
     } catch (err) {
       alert("导出图片失败：" + (err instanceof Error ? err.message : String(err)));
     } finally {
+      node.style.width = prev.width;
+      node.style.maxWidth = prev.maxWidth;
+      node.style.minWidth = prev.minWidth;
       setExporting(false);
     }
   }
