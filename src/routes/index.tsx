@@ -759,87 +759,85 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
   const { report, meta } = data;
   const steps = report.improve.steps.map((s) => `<li>${esc(s)}</li>`).join("");
 
-  const blockHtml = (key: SectionKey) => {
-    const cfg = t.sections[key];
-    if (!cfg.enabled) return "";
-    const tone = TONE_STYLES[cfg.tone];
-    const inner =
-      key === "highlight"
-        ? `<div class="title">${esc(report.highlight.title)}</div><div class="detail">${esc(report.highlight.detail)}</div>`
-        : key === "stuck"
-          ? `<div class="title">${esc(report.stuck.title)}</div><div class="detail">${esc(report.stuck.detail)}</div>`
-          : `<div class="title">${esc(report.improve.title)}</div><div class="detail"><ul>${steps}</ul></div>`;
-    return `<div class="block"><span class="bar" style="background:${tone.cssAccent}"></span><div class="tag" style="background:${tone.cssBg};color:${tone.cssAccent}">${esc(cfg.tag)}</div>${inner}</div>`;
-  };
+  const section = (tag: string, en: string, inner: string, enabled: boolean) =>
+    enabled
+      ? `<div class="card"><div class="cardhead"><span class="ico"></span><span class="tag">${esc(tag)} <em>/ ${en}</em></span></div><div class="cardbody">${inner}</div></div>`
+      : "";
 
-  const enabled = SECTION_ORDER.filter((k) => t.sections[k].enabled);
-  const blocks = enabled.map(blockHtml);
   const imgHtml = image
     ? `<figure class="figure"><img src="${esc(image)}" alt=""/></figure>`
     : "";
-  if (imgHtml) {
-    const insertAt = Math.min(1, Math.max(0, blocks.length - 1));
-    blocks.splice(insertAt, 0, imgHtml);
-  }
-  const sectionsHtml = blocks.join("");
-
-  const gradient = `linear-gradient(160deg, ${oklchToCss(t.themeFrom)} 0%, ${oklchToCss(t.themeVia)} 55%, ${oklchToCss(t.themeTo)} 100%)`;
 
   return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"/>
 <title>${esc(meta.studentName)} · Day ${esc(meta.day)} 观察报告</title>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <style>
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f4ede2;padding:28px 16px;color:#2a221b}
-  .card{position:relative;max-width:580px;margin:0 auto;border-radius:28px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(120,60,30,.45);background:${gradient}}
-  .blob{position:absolute;border-radius:9999px;filter:blur(60px);pointer-events:none}
-  .blob.a{right:-60px;top:-60px;width:220px;height:220px;background:#f0b48a;opacity:.45}
-  .blob.b{left:-40px;bottom:-80px;width:220px;height:220px;background:#e8b8d4;opacity:.35}
-  .head{position:relative;padding:32px 32px 0}
-  .kicker{display:flex;justify-content:space-between;align-items:center;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#7a4a2a;font-weight:500}
-  .kicker .dot{display:inline-flex;align-items:center;gap:6px}
-  .kicker .dot::before{content:"";display:inline-block;width:6px;height:6px;border-radius:9999px;background:#c25535}
-  .badge{background:rgba(255,255,255,.6);padding:3px 10px;border-radius:9999px;color:#8a3a1a}
-  h1{font-size:28px;margin:18px 0 6px;letter-spacing:-.01em;color:#3a2418;line-height:1.15}
-  .sub{font-size:13px;color:#7a4a2a;margin:0}
-  .divider{margin-top:20px;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent)}
-  .body{position:relative;padding:20px 32px 32px;display:flex;flex-direction:column;gap:12px}
-  .block{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.8);background:rgba(255,255,255,.85);border-radius:16px;padding:16px 18px;box-shadow:0 4px 16px -8px rgba(80,40,20,.18)}
-  .block .bar{position:absolute;left:0;top:0;width:4px;height:100%}
-  .tag{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;padding:3px 9px;border-radius:9999px;margin-bottom:8px}
-  .title{font-weight:600;margin-bottom:4px;font-size:15px;color:#2a1a10}
-  .detail{color:#4a3a2a;font-size:14px;line-height:1.65}
-  ul{margin:6px 0 0 18px;padding:0}
-  ul li{margin:4px 0}
-  .figure{margin:0;border:1px solid rgba(255,255,255,.8);background:#fbf5ec;border-radius:18px;padding:8px;box-shadow:0 8px 24px -12px rgba(80,40,20,.25)}
-  .figure img{display:block;width:100%;max-height:380px;object-fit:contain;border-radius:12px}
-  .quote{position:relative;margin-top:8px;background:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.7);border-radius:16px;padding:18px 28px;text-align:center;font-style:italic;color:#7a3a1a;font-size:15px}
-  .quote::before,.quote::after{position:absolute;font-family:Georgia,serif;font-size:34px;color:rgba(194,85,53,.4);line-height:1}
-  .quote::before{content:"\\201C";left:10px;top:6px}
-  .quote::after{content:"\\201D";right:10px;bottom:0}
-  .foot{text-align:center;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#7a4a2a;padding-top:12px}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;background:#eef3fa;padding:24px 12px;color:#0f1f3a}
+  .card-root{position:relative;max-width:640px;margin:0 auto;background:linear-gradient(180deg,#eaf2fb 0%,#f3f7fc 35%,#ffffff 100%);padding:48px 36px 40px;overflow:hidden;border-radius:4px}
+  .topbar{position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,#3b82f6 0%,#93c5fd 60%,transparent 100%)}
+  .deco{position:absolute;right:24px;top:36px;width:140px;height:140px;border-radius:24px;background:rgba(186,214,242,.35)}
+  .kicker{position:relative;font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:#3b82f6;display:flex;align-items:center;gap:10px}
+  .kicker::before{content:"";display:inline-block;width:30px;height:1px;background:#3b82f6}
+  h1{position:relative;font-size:34px;font-weight:900;margin:18px 0 18px;letter-spacing:-.01em;line-height:1.1;color:#0b1b35}
+  h1 .blue{color:#3b82f6}
+  .day{position:relative;display:inline-block;background:#3b82f6;color:#fff;border-radius:9999px;padding:6px 18px;font-size:14px;font-weight:600;box-shadow:0 6px 16px -6px rgba(59,130,246,.6)}
+  .student{position:relative;margin-top:32px;background:rgba(255,255,255,.7);border:1px solid #dbe6f4;border-radius:18px;padding:22px 26px;display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
+  .student .lbl{font-size:11px;letter-spacing:.4em;color:#94a3b8;font-weight:500}
+  .student .name{font-size:28px;font-weight:700;margin-top:8px;color:#0b1b35}
+  .student .state{font-size:14px;font-weight:600;color:#3b82f6;margin-top:8px}
+  .figure{position:relative;margin:20px 0 0;border:1px solid #dbe6f4;background:#fff;border-radius:18px;overflow:hidden}
+  .figure img{display:block;width:100%;max-height:360px;object-fit:cover}
+  .sections{position:relative;margin-top:22px;display:flex;flex-direction:column;gap:18px}
+  .card{background:#fff;border:1px solid #e4ecf6;border-radius:18px;padding:20px 22px;box-shadow:0 2px 10px -4px rgba(59,130,246,.08)}
+  .cardhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .ico{display:inline-block;width:24px;height:24px;border-radius:7px;background:#eaf2fb;position:relative}
+  .ico::after{content:"";position:absolute;left:8px;top:8px;width:8px;height:8px;border-radius:2px;background:#3b82f6}
+  .tag{font-size:14px;font-weight:600;color:#3b82f6}
+  .tag em{font-style:normal;color:#94a3b8;font-weight:500}
+  .cardbody{font-size:14px;line-height:1.75;color:#334155}
+  .cardbody ul{margin:0;padding-left:18px}
+  .cardbody ul li{margin:4px 0}
+  .trait{position:relative;margin-top:24px;background:#1f2a3d;border-radius:18px;padding:24px 28px;text-align:center}
+  .trait .l{font-size:12px;font-weight:600;letter-spacing:.32em;color:#7eb6ff}
+  .trait .q{margin-top:10px;font-size:16px;font-style:italic;color:#fff;line-height:1.6}
+  .coach{position:relative;margin-top:32px;text-align:center}
+  .coach .l{font-size:12px;font-weight:600;letter-spacing:.32em;color:#3b82f6}
+  .coach .q{margin-top:6px;font-size:16px;font-weight:700;color:#0b1b35}
+  .meta{position:relative;margin-top:32px;display:flex;justify-content:center;gap:32px;font-size:13px;color:#64748b}
+  .foot{position:relative;margin-top:20px;text-align:center;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#94a3b8}
 </style></head><body>
-<div class="card">
-  <div class="blob a"></div><div class="blob b"></div>
-  <div class="head">
-    <div class="kicker"><span class="dot">AI for Good · Summer Camp</span><span class="badge">Day ${esc(meta.day)} / 7</span></div>
-    <h1>${esc(meta.studentName)} 的第 ${esc(meta.day)} 天</h1>
-    <p class="sub">${esc(meta.date)}${meta.project ? " · " + esc(meta.project) : ""}${t.showMentor && meta.mentor ? " · 导师 " + esc(meta.mentor) : ""}</p>
-    <div class="divider"></div>
+<div class="card-root">
+  <div class="topbar"></div>
+  <div class="deco"></div>
+  <div class="kicker">Observation Report</div>
+  <h1>AI for Good 冬令营<br/><span class="blue">学员观察报告</span></h1>
+  <div class="day">Day ${esc(meta.day)}</div>
+  <div class="student">
+    <div><div class="lbl">学　员</div><div class="name">${esc(meta.studentName)}</div></div>
+    <div style="text-align:right"><div class="lbl">今 日 状 态</div><div class="state">↑ 持续观察中</div></div>
   </div>
-  <div class="body">
-    ${sectionsHtml}
-    ${t.showEncouragement ? `<div class="quote">${esc(report.encouragement)}</div>` : ""}
-    <div class="foot">${esc(t.footer)}</div>
+  ${imgHtml}
+  <div class="sections">
+    ${section(t.sections.highlight.tag, "HIGHLIGHTS", `<p>${esc(report.highlight.detail)}</p>`, t.sections.highlight.enabled)}
+    ${section(t.sections.stuck.tag, "REFLECTION", `<p>${esc(report.stuck.detail)}</p>`, t.sections.stuck.enabled)}
+    ${section(t.sections.improve.tag, "FOR PARENTS", `<ul>${steps}</ul>`, t.sections.improve.enabled)}
   </div>
+  ${t.showEncouragement ? `<div class="trait"><div class="l">核心特质 / TRAIT</div><div class="q">"${esc(report.encouragement)}"</div></div>` : ""}
+  <div class="coach"><div class="l">教练反馈</div><div class="q">"${esc(report.highlight.title)}"</div></div>
+  <div class="meta">
+    ${t.showMentor && meta.mentor ? `<span>观察教练：${esc(meta.mentor)}</span>` : ""}
+    <span>${esc(formatDateCnPlain(meta.date))}</span>
+  </div>
+  ${t.footer ? `<div class="foot">${esc(t.footer)}</div>` : ""}
 </div>
 </body></html>`;
 }
 
-// Best-effort: keep oklch() as-is for modern browsers; standalone HTML opened
-// in any recent browser supports it.
-function oklchToCss(v: string) {
-  return v;
+function formatDateCnPlain(d: string) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d);
+  if (!m) return d;
+  return `${m[1]}年${Number(m[2])}月${Number(m[3])}日`;
 }
 
 function esc(s: string) {
