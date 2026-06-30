@@ -873,7 +873,7 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
   </div>
   ${imgHtml}
   <div class="sections">
-    ${section(t.sections.highlight.tag, "HIGHLIGHTS", `<ul>${highlightPoints}</ul>`, t.sections.highlight.enabled)}
+    ${section(t.sections.highlight.tag, "HIGHLIGHTS", `${radarHtml}<ul>${highlightPoints}</ul>`, t.sections.highlight.enabled)}
     ${section(t.sections.stuck.tag, "REFLECTION", `<ul>${stuckPoints}</ul>`, t.sections.stuck.enabled)}
     ${section(t.sections.improve.tag, "FOR PARENTS", `<ul>${steps}</ul>`, t.sections.improve.enabled)}
   </div>
