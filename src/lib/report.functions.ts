@@ -97,8 +97,28 @@ ${data.observations}`;
     try {
       parsed = JSON.parse(content);
     } catch {
-      throw new Error("Kimi 返回内容不是合法 JSON");
+      // Kimi 偶尔返回带 ```json 包裹或前后多余文字的内容，尝试抽取 JSON 主体。
+      const cleaned = content
+        .replace(/```json\s*/gi, "")
+        .replace(/```/g, "")
+        .trim();
+      const start = cleaned.search(/[\{\[]/);
+      const end = Math.max(cleaned.lastIndexOf("}"), cleaned.lastIndexOf("]"));
+      if (start === -1 || end === -1 || end <= start) {
+        throw new Error("Kimi 返回内容不是合法 JSON：" + content.slice(0, 200));
+      }
+      let body = cleaned.slice(start, end + 1);
+      try {
+        parsed = JSON.parse(body);
+      } catch {
+        body = body
+          .replace(/,\s*}/g, "}")
+          .replace(/,\s*]/g, "]")
+          .replace(/[\x00-\x1F\x7F]/g, " ");
+        parsed = JSON.parse(body);
+      }
     }
+
     const report = ReportSchema.parse(parsed);
     return {
       report,
