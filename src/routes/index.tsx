@@ -630,19 +630,19 @@ const Poster = forwardRef<
 
       {/* header */}
       <div className="relative">
-        <div className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#3b82f6] sm:text-[11px] sm:tracking-[0.28em]">
+        <div className="flex items-center gap-3 text-[12px] font-semibold uppercase tracking-[0.24em] text-[#3b82f6] sm:text-[13px] sm:tracking-[0.28em]">
           <span className="inline-block h-px w-6 bg-[#3b82f6] sm:w-8" />
           Observation Report
         </div>
         <h1
-          className="mt-4 text-[26px] font-black leading-[1.15] tracking-tight text-[#0b1b35] sm:mt-5 sm:text-[40px] sm:leading-[1.1]"
+          className="mt-4 text-[30px] font-black leading-[1.15] tracking-tight text-[#0b1b35] sm:mt-5 sm:text-[48px] sm:leading-[1.1]"
           style={{ letterSpacing: "-0.01em" }}
         >
           AI for Good 冬令营
           <br />
           <span className="text-[#3b82f6]">学员观察报告</span>
         </h1>
-        <div className="mt-4 inline-flex items-center rounded-full bg-[#3b82f6] px-4 py-1 text-[13px] font-semibold text-white shadow-[0_6px_16px_-6px_rgba(59,130,246,0.6)] sm:mt-5 sm:px-5 sm:py-1.5 sm:text-[15px]">
+        <div className="mt-4 inline-flex items-center rounded-full bg-[#3b82f6] px-4 py-1 text-[15px] font-semibold text-white shadow-[0_6px_16px_-6px_rgba(59,130,246,0.6)] sm:mt-5 sm:px-5 sm:py-1.5 sm:text-[17px]">
           Day {meta.day}
         </div>
       </div>
@@ -651,12 +651,12 @@ const Poster = forwardRef<
       <div className="relative mt-7 rounded-2xl bg-white/70 px-5 py-5 backdrop-blur-sm ring-1 ring-[#dbe6f4] sm:mt-10 sm:px-7 sm:py-6">
         <div className="flex items-start justify-between gap-4 sm:gap-6">
           <div className="min-w-0">
-            <div className="text-[10px] font-medium tracking-[0.32em] text-[#94a3b8] sm:text-[12px] sm:tracking-[0.4em]">学　员</div>
-            <div className="mt-2 truncate text-[22px] font-bold text-[#0b1b35] sm:text-[30px]">{meta.studentName}</div>
+            <div className="text-[12px] font-medium tracking-[0.32em] text-[#94a3b8] sm:text-[14px] sm:tracking-[0.4em]">学　员</div>
+            <div className="mt-2 truncate text-[26px] font-bold text-[#0b1b35] sm:text-[34px]">{meta.studentName}</div>
           </div>
           <div className="shrink-0 text-right">
-            <div className="text-[10px] font-medium tracking-[0.32em] text-[#94a3b8] sm:text-[12px] sm:tracking-[0.4em]">今 日 状 态</div>
-            <div className="mt-2 text-[13px] font-semibold text-[#3b82f6] sm:text-[15px]">
+            <div className="text-[12px] font-medium tracking-[0.32em] text-[#94a3b8] sm:text-[14px] sm:tracking-[0.4em]">今 日 状 态</div>
+            <div className="mt-2 text-[15px] font-semibold text-[#3b82f6] sm:text-[17px]">
               ↑ 持续观察中
             </div>
           </div>
@@ -696,10 +696,10 @@ const Poster = forwardRef<
       {/* core trait / encouragement dark card */}
       {template.showEncouragement && (
         <div className="relative mt-6 rounded-2xl bg-[#1f2a3d] px-6 py-6 text-center sm:mt-7 sm:px-8 sm:py-7">
-          <div className="text-[11px] font-semibold tracking-[0.28em] text-[#7eb6ff] sm:text-[12px] sm:tracking-[0.32em]">
+          <div className="text-[13px] font-semibold tracking-[0.28em] text-[#7eb6ff] sm:text-[14px] sm:tracking-[0.32em]">
             核心特质 / TRAIT
           </div>
-          <div className="mt-3 text-[15px] italic leading-relaxed text-white sm:text-[17px]">
+          <div className="mt-3 text-[17px] italic leading-relaxed text-white sm:text-[20px]">
             "{report.encouragement}"
           </div>
         </div>
@@ -707,16 +707,16 @@ const Poster = forwardRef<
 
       {/* coach line */}
       <div className="relative mt-7 text-center sm:mt-9">
-        <div className="text-[11px] font-semibold tracking-[0.28em] text-[#3b82f6] sm:text-[12px] sm:tracking-[0.32em]">
+        <div className="text-[13px] font-semibold tracking-[0.28em] text-[#3b82f6] sm:text-[14px] sm:tracking-[0.32em]">
           教练反馈
         </div>
-        <div className="mt-2 text-[15px] font-bold text-[#0b1b35] sm:text-[17px]">
+        <div className="mt-2 text-[17px] font-bold text-[#0b1b35] sm:text-[20px]">
           "{report.highlight.title}"
         </div>
       </div>
 
       {/* footer meta */}
-      <div className="relative mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] text-[#64748b] sm:mt-10 sm:gap-8 sm:text-[13px]">
+      <div className="relative mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px] text-[#64748b] sm:mt-10 sm:gap-8 sm:text-[15px]">
         {template.showMentor && meta.mentor && (
           <span className="inline-flex items-center gap-1.5">
             <span className="inline-block h-2 w-2 rounded-full ring-1 ring-[#64748b]" />
@@ -730,7 +730,7 @@ const Poster = forwardRef<
       </div>
 
       {template.footer && (
-        <div className="relative mt-5 text-center text-[10px] uppercase tracking-[0.22em] text-[#94a3b8] sm:mt-6 sm:tracking-[0.24em]">
+        <div className="relative mt-5 text-center text-[12px] uppercase tracking-[0.22em] text-[#94a3b8] sm:mt-6 sm:tracking-[0.24em]">
           {template.footer}
         </div>
       )}
@@ -762,11 +762,11 @@ function SectionCard({
         >
           <span className="inline-block h-2 w-2 rounded-sm bg-[#3b82f6]" />
         </span>
-        <span className="text-[13px] font-semibold text-[#3b82f6] sm:text-[14px]">
+        <span className="text-[15px] font-semibold text-[#3b82f6] sm:text-[16px]">
           {tag} <span className="text-[#94a3b8] font-medium">/ {en}</span>
         </span>
       </div>
-      <div className="text-[14px] leading-[1.75] text-[#334155] sm:text-[15px]">{children}</div>
+      <div className="text-[16px] leading-[1.75] text-[#334155] sm:text-[18px]">{children}</div>
     </div>
   );
 }
@@ -793,15 +793,15 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
   .card-root{position:relative;max-width:640px;margin:0 auto;background:linear-gradient(180deg,#eaf2fb 0%,#f3f7fc 35%,#ffffff 100%);padding:48px 36px 40px;overflow:hidden;border-radius:4px}
   .topbar{position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,#3b82f6 0%,#93c5fd 60%,transparent 100%)}
   .deco{position:absolute;right:24px;top:36px;width:140px;height:140px;border-radius:24px;background:rgba(186,214,242,.35)}
-  .kicker{position:relative;font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:#3b82f6;display:flex;align-items:center;gap:10px}
+  .kicker{position:relative;font-size:13px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:#3b82f6;display:flex;align-items:center;gap:10px}
   .kicker::before{content:"";display:inline-block;width:30px;height:1px;background:#3b82f6}
-  h1{position:relative;font-size:34px;font-weight:900;margin:18px 0 18px;letter-spacing:-.01em;line-height:1.1;color:#0b1b35}
+  h1{position:relative;font-size:40px;font-weight:900;margin:18px 0 18px;letter-spacing:-.01em;line-height:1.1;color:#0b1b35}
   h1 .blue{color:#3b82f6}
-  .day{position:relative;display:inline-block;background:#3b82f6;color:#fff;border-radius:9999px;padding:6px 18px;font-size:14px;font-weight:600;box-shadow:0 6px 16px -6px rgba(59,130,246,.6)}
+  .day{position:relative;display:inline-block;background:#3b82f6;color:#fff;border-radius:9999px;padding:6px 18px;font-size:16px;font-weight:600;box-shadow:0 6px 16px -6px rgba(59,130,246,.6)}
   .student{position:relative;margin-top:32px;background:rgba(255,255,255,.7);border:1px solid #dbe6f4;border-radius:18px;padding:22px 26px;display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
-  .student .lbl{font-size:11px;letter-spacing:.4em;color:#94a3b8;font-weight:500}
-  .student .name{font-size:28px;font-weight:700;margin-top:8px;color:#0b1b35}
-  .student .state{font-size:14px;font-weight:600;color:#3b82f6;margin-top:8px}
+  .student .lbl{font-size:13px;letter-spacing:.4em;color:#94a3b8;font-weight:500}
+  .student .name{font-size:32px;font-weight:700;margin-top:8px;color:#0b1b35}
+  .student .state{font-size:16px;font-weight:600;color:#3b82f6;margin-top:8px}
   .figure{position:relative;margin:20px 0 0;border:1px solid #dbe6f4;background:#fff;border-radius:18px;overflow:hidden}
   .figure img{display:block;width:100%;max-height:360px;object-fit:cover}
   .sections{position:relative;margin-top:22px;display:flex;flex-direction:column;gap:18px}
@@ -809,38 +809,38 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
   .cardhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
   .ico{display:inline-block;width:24px;height:24px;border-radius:7px;background:#eaf2fb;position:relative}
   .ico::after{content:"";position:absolute;left:8px;top:8px;width:8px;height:8px;border-radius:2px;background:#3b82f6}
-  .tag{font-size:14px;font-weight:600;color:#3b82f6}
+  .tag{font-size:16px;font-weight:600;color:#3b82f6}
   .tag em{font-style:normal;color:#94a3b8;font-weight:500}
-  .cardbody{font-size:14px;line-height:1.75;color:#334155}
+  .cardbody{font-size:17px;line-height:1.75;color:#334155}
   .cardbody ul{margin:0;padding-left:18px}
   .cardbody ul li{margin:4px 0}
   .trait{position:relative;margin-top:24px;background:#1f2a3d;border-radius:18px;padding:24px 28px;text-align:center}
-  .trait .l{font-size:12px;font-weight:600;letter-spacing:.32em;color:#7eb6ff}
-  .trait .q{margin-top:10px;font-size:16px;font-style:italic;color:#fff;line-height:1.6}
+  .trait .l{font-size:14px;font-weight:600;letter-spacing:.32em;color:#7eb6ff}
+  .trait .q{margin-top:10px;font-size:19px;font-style:italic;color:#fff;line-height:1.6}
   .coach{position:relative;margin-top:32px;text-align:center}
-  .coach .l{font-size:12px;font-weight:600;letter-spacing:.32em;color:#3b82f6}
-  .coach .q{margin-top:6px;font-size:16px;font-weight:700;color:#0b1b35}
-  .meta{position:relative;margin-top:32px;display:flex;justify-content:center;gap:32px;font-size:13px;color:#64748b}
-  .foot{position:relative;margin-top:20px;text-align:center;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#94a3b8}
+  .coach .l{font-size:14px;font-weight:600;letter-spacing:.32em;color:#3b82f6}
+  .coach .q{margin-top:6px;font-size:19px;font-weight:700;color:#0b1b35}
+  .meta{position:relative;margin-top:32px;display:flex;justify-content:center;gap:32px;font-size:15px;color:#64748b}
+  .foot{position:relative;margin-top:20px;text-align:center;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#94a3b8}
   @media (max-width:520px){
     body{padding:14px 8px}
     .card-root{padding:32px 20px 28px;border-radius:14px}
     .deco{width:90px;height:90px;right:14px;top:24px;border-radius:18px}
-    h1{font-size:24px;margin:14px 0 14px}
-    .day{font-size:13px;padding:5px 14px}
+    h1{font-size:28px;margin:14px 0 14px}
+    .day{font-size:15px;padding:5px 14px}
     .student{margin-top:22px;padding:16px 18px;border-radius:14px;gap:14px}
-    .student .name{font-size:21px;margin-top:6px}
-    .student .lbl{font-size:10px;letter-spacing:.28em}
-    .student .state{font-size:13px;margin-top:6px}
+    .student .name{font-size:25px;margin-top:6px}
+    .student .lbl{font-size:12px;letter-spacing:.28em}
+    .student .state{font-size:15px;margin-top:6px}
     .figure{border-radius:14px}
     .figure img{max-height:240px}
     .sections{margin-top:18px;gap:14px}
     .card{padding:16px 18px;border-radius:14px}
-    .cardbody{font-size:14px}
+    .cardbody{font-size:16px}
     .trait{padding:20px 18px;border-radius:14px}
-    .trait .q{font-size:15px}
-    .coach .q{font-size:15px}
-    .meta{gap:18px;flex-wrap:wrap;font-size:12px;margin-top:24px}
+    .trait .q{font-size:17px}
+    .coach .q{font-size:17px}
+    .meta{gap:18px;flex-wrap:wrap;font-size:14px;margin-top:24px}
   }
 </style></head><body>
 <div class="card-root">
