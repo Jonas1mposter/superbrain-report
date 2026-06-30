@@ -638,7 +638,7 @@ const Poster = forwardRef<
           className="mt-4 text-[30px] font-black leading-[1.15] tracking-tight text-[#0b1b35] sm:mt-5 sm:text-[48px] sm:leading-[1.1]"
           style={{ letterSpacing: "-0.01em" }}
         >
-          AI for Good 冬令营
+          AI for Good 夏令营
           <br />
           <span className="text-[#3b82f6]">学员观察报告</span>
         </h1>
@@ -847,7 +847,7 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
   <div class="topbar"></div>
   <div class="deco"></div>
   <div class="kicker">Observation Report</div>
-  <h1>AI for Good 冬令营<br/><span class="blue">学员观察报告</span></h1>
+  <h1>AI for Good 夏令营<br/><span class="blue">学员观察报告</span></h1>
   <div class="day">Day ${esc(meta.day)}</div>
   <div class="student">
     <div><div class="lbl">学　员</div><div class="name">${esc(meta.studentName)}</div></div>
