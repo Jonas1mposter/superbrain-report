@@ -826,21 +826,21 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
     body{padding:14px 8px}
     .card-root{padding:32px 20px 28px;border-radius:14px}
     .deco{width:90px;height:90px;right:14px;top:24px;border-radius:18px}
-    h1{font-size:24px;margin:14px 0 14px}
-    .day{font-size:13px;padding:5px 14px}
+    h1{font-size:28px;margin:14px 0 14px}
+    .day{font-size:15px;padding:5px 14px}
     .student{margin-top:22px;padding:16px 18px;border-radius:14px;gap:14px}
-    .student .name{font-size:21px;margin-top:6px}
-    .student .lbl{font-size:10px;letter-spacing:.28em}
-    .student .state{font-size:13px;margin-top:6px}
+    .student .name{font-size:25px;margin-top:6px}
+    .student .lbl{font-size:12px;letter-spacing:.28em}
+    .student .state{font-size:15px;margin-top:6px}
     .figure{border-radius:14px}
     .figure img{max-height:240px}
     .sections{margin-top:18px;gap:14px}
     .card{padding:16px 18px;border-radius:14px}
-    .cardbody{font-size:14px}
+    .cardbody{font-size:16px}
     .trait{padding:20px 18px;border-radius:14px}
-    .trait .q{font-size:15px}
-    .coach .q{font-size:15px}
-    .meta{gap:18px;flex-wrap:wrap;font-size:12px;margin-top:24px}
+    .trait .q{font-size:17px}
+    .coach .q{font-size:17px}
+    .meta{gap:18px;flex-wrap:wrap;font-size:14px;margin-top:24px}
   }
 </style></head><body>
 <div class="card-root">
