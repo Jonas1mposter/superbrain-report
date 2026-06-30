@@ -782,6 +782,8 @@ function SectionCard({
 function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: string | null) {
   const { report, meta } = data;
   const steps = report.improve.steps.map((s) => `<li>${esc(s)}</li>`).join("");
+  const highlightPoints = report.highlight.points.map((p) => `<li>${esc(p)}</li>`).join("");
+  const stuckPoints = report.stuck.points.map((p) => `<li>${esc(p)}</li>`).join("");
 
   const section = (tag: string, en: string, inner: string, enabled: boolean) =>
     enabled
@@ -863,8 +865,8 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
   </div>
   ${imgHtml}
   <div class="sections">
-    ${section(t.sections.highlight.tag, "HIGHLIGHTS", `<p>${esc(report.highlight.detail)}</p>`, t.sections.highlight.enabled)}
-    ${section(t.sections.stuck.tag, "REFLECTION", `<p>${esc(report.stuck.detail)}</p>`, t.sections.stuck.enabled)}
+    ${section(t.sections.highlight.tag, "HIGHLIGHTS", `<ul>${highlightPoints}</ul>`, t.sections.highlight.enabled)}
+    ${section(t.sections.stuck.tag, "REFLECTION", `<ul>${stuckPoints}</ul>`, t.sections.stuck.enabled)}
     ${section(t.sections.improve.tag, "FOR PARENTS", `<ul>${steps}</ul>`, t.sections.improve.enabled)}
   </div>
   ${t.showEncouragement ? `<div class="trait"><div class="l">核心特质 / TRAIT</div><div class="q">"${esc(report.encouragement)}"</div></div>` : ""}
