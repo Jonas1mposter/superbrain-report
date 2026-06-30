@@ -674,6 +674,10 @@ const Poster = forwardRef<
       <div className="relative mt-5 space-y-4 sm:mt-6 sm:space-y-5">
         {template.sections.highlight.enabled && (
           <SectionCard tag={template.sections.highlight.tag} en="HIGHLIGHTS">
+            <div
+              className="mb-3 flex justify-center"
+              dangerouslySetInnerHTML={{ __html: buildRadarSvg(report.highlight.radar) }}
+            />
             <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
               {report.highlight.points.map((p, i) => (
                 <li key={i}>{p}</li>
@@ -681,6 +685,7 @@ const Poster = forwardRef<
             </ul>
           </SectionCard>
         )}
+
         {template.sections.stuck.enabled && (
           <SectionCard tag={template.sections.stuck.tag} en="REFLECTION">
             <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
