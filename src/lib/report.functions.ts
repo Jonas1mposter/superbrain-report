@@ -10,28 +10,10 @@ const InputSchema = z.object({
   mentor: z.string().optional().default(""),
 });
 
-export const RADAR_DIMENSIONS = [
-  "主动性",
-  "协作",
-  "创造力",
-  "同理心",
-  "韧性",
-  "表达",
-] as const;
-
 const ReportSchema = z.object({
   highlight: z.object({
     title: z.string(),
     points: z.array(z.string()).min(2).max(3),
-    radar: z
-      .object({
-        主动性: z.number().min(1).max(5),
-        协作: z.number().min(1).max(5),
-        创造力: z.number().min(1).max(5),
-        同理心: z.number().min(1).max(5),
-        韧性: z.number().min(1).max(5),
-        表达: z.number().min(1).max(5),
-      }),
   }),
   stuck: z.object({
     title: z.string(),
