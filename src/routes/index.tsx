@@ -762,11 +762,11 @@ function SectionCard({
         >
           <span className="inline-block h-2 w-2 rounded-sm bg-[#3b82f6]" />
         </span>
-        <span className="text-[13px] font-semibold text-[#3b82f6] sm:text-[14px]">
+        <span className="text-[15px] font-semibold text-[#3b82f6] sm:text-[16px]">
           {tag} <span className="text-[#94a3b8] font-medium">/ {en}</span>
         </span>
       </div>
-      <div className="text-[14px] leading-[1.75] text-[#334155] sm:text-[15px]">{children}</div>
+      <div className="text-[16px] leading-[1.75] text-[#334155] sm:text-[18px]">{children}</div>
     </div>
   );
 }
