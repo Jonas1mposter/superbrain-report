@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 export const MODEL_OPTIONS = [
-  { id: "kimi", label: "Kimi K2.7" },
+  { id: "kimi", label: "Kimi K2.6" },
   { id: "deepseek", label: "Deepseek V4 Pro" },
 ] as const;
 
