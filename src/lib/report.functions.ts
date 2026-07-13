@@ -1,6 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+export const MODEL_OPTIONS = [
+  { id: "kimi", label: "Kimi K2.7" },
+  { id: "deepseek", label: "Deepseek V4 Pro" },
+] as const;
+
+export type ModelId = (typeof MODEL_OPTIONS)[number]["id"];
+
 const InputSchema = z.object({
   studentName: z.string().min(1),
   day: z.string().min(1),
@@ -8,6 +15,7 @@ const InputSchema = z.object({
   project: z.string().optional().default(""),
   observations: z.string().min(1),
   mentor: z.string().optional().default(""),
+  model: z.enum(["kimi", "deepseek"]).optional().default("kimi"),
 });
 
 const ReportSchema = z.object({
@@ -28,13 +36,36 @@ const ReportSchema = z.object({
 
 export type DailyReport = z.infer<typeof ReportSchema>;
 
+type ProviderConfig = {
+  url: string;
+  model: string;
+  key: string | undefined;
+  keyName: string;
+};
+
+function getProvider(model: ModelId): ProviderConfig {
+  if (model === "deepseek") {
+    return {
+      url: "https://api.deepseek.com/chat/completions",
+      model: "deepseek-chat",
+      key: process.env.DEEPSEEK_API_KEY,
+      keyName: "DEEPSEEK_API_KEY",
+    };
+  }
+  return {
+    url: "https://api.moonshot.cn/v1/chat/completions",
+    model: "kimi-k2.7",
+    key: process.env.MOONSHOT_API_KEY,
+    keyName: "MOONSHOT_API_KEY",
+  };
+}
 
 export const generateReport = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => InputSchema.parse(d))
   .handler(async ({ data }) => {
-    const key = process.env.MOONSHOT_API_KEY;
-    if (!key) {
-      throw new Error("缺少 MOONSHOT_API_KEY，请先在 Lovable 中配置 Kimi API Key。");
+    const provider = getProvider(data.model);
+    if (!provider.key) {
+      throw new Error(`缺少 ${provider.keyName}，请先在 Lovable 中配置对应的 API Key。`);
     }
 
     const systemPrompt = `你是「AI for Good」7天夏令营的资深观察导师，正在为**学员家长**整理当日观察报告。这份报告本身就是观察记录，请直接陈述事实，不要使用"在观察记录中""根据记录""老师注意到""据观察"等指向资料来源的元语言。直接写"今天他……"即可。
@@ -62,7 +93,6 @@ export const generateReport = createServerFn({ method: "POST" })
   "encouragement": "给家长的一句话（不超过30字，温和、不夸张）"
 }`;
 
-
     const userPrompt = `学员姓名：${data.studentName}
 营期：第 ${data.day} 天（${data.date}）
 项目方向：${data.project || "未填写"}
@@ -71,14 +101,14 @@ export const generateReport = createServerFn({ method: "POST" })
 今日原始观察记录：
 ${data.observations}`;
 
-    const res = await fetch("https://api.moonshot.cn/v1/chat/completions", {
+    const res = await fetch(provider.url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${key}`,
+        Authorization: `Bearer ${provider.key}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "kimi-k2.6",
+        model: provider.model,
         temperature: 1,
         response_format: { type: "json_object" },
         messages: [
@@ -90,7 +120,7 @@ ${data.observations}`;
 
     if (!res.ok) {
       const txt = await res.text();
-      throw new Error(`Kimi 调用失败 (${res.status}): ${txt.slice(0, 300)}`);
+      throw new Error(`${provider.keyName} 调用失败 (${res.status}): ${txt.slice(0, 300)}`);
     }
 
     const json = await res.json();
@@ -99,7 +129,6 @@ ${data.observations}`;
     try {
       parsed = JSON.parse(content);
     } catch {
-      // Kimi 偶尔返回带 ```json 包裹或前后多余文字的内容，尝试抽取 JSON 主体。
       const cleaned = content
         .replace(/```json\s*/gi, "")
         .replace(/```/g, "")
@@ -107,7 +136,7 @@ ${data.observations}`;
       const start = cleaned.search(/[\{\[]/);
       const end = Math.max(cleaned.lastIndexOf("}"), cleaned.lastIndexOf("]"));
       if (start === -1 || end === -1 || end <= start) {
-        throw new Error("Kimi 返回内容不是合法 JSON：" + content.slice(0, 200));
+        throw new Error("模型返回内容不是合法 JSON：" + content.slice(0, 200));
       }
       let body = cleaned.slice(start, end + 1);
       try {
@@ -130,6 +159,7 @@ ${data.observations}`;
         date: data.date,
         project: data.project,
         mentor: data.mentor,
+        model: data.model,
       },
     };
   });

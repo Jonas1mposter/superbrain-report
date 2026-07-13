@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { forwardRef, useEffect, useRef, useState } from "react";
-import { generateReport, type DailyReport } from "@/lib/report.functions";
+import { generateReport, MODEL_OPTIONS, type DailyReport, type ModelId } from "@/lib/report.functions";
 import {
   DEFAULT_TEMPLATE,
   PRESETS,
@@ -48,6 +48,7 @@ const EXAMPLE = {
   project: "用 AI 帮助听障儿童学习语言",
   mentor: "陈老师",
   observations: `上午的 AI 伦理工作坊里，小满主动举手分享了昨天在社区调研中遇到的真实故事：一位听障儿童的家长说，现有的语音学习 App 语速太快，孩子跟不上。小满立刻在小组讨论中提出"可以让 AI 把句子拆成更慢的小片段"，并画了一个三页纸的流程草图。\n\n午饭前她用 Kimi 辅助生成了一个"慢语速语音切片"的原型说明，但中途卡在选择工具上——她试了两种 TTS 工具都不满意，情绪有点低落，甚至说"是不是我的想法太简单了"。经过导师和同学提醒，她发现不是想法简单，而是还没找到适合儿童语速的参数。\n\n下午她和队友一起把流程图改成可点击的低保真原型，并决定明天先去采访 1 位小朋友验证这个方向。`,
+  model: "kimi" as ModelId,
 };
 
 function Index() {
@@ -64,6 +65,7 @@ function Index() {
     project: "",
     mentor: "",
     observations: "",
+    model: "kimi" as ModelId,
   });
 
   const [template, setTemplate] = useState<PosterTemplate>(DEFAULT_TEMPLATE);
@@ -517,6 +519,31 @@ function Index() {
               />
             </Field>
 
+            <Field label="生成模型">
+              <div className="flex gap-2">
+                {MODEL_OPTIONS.map((m) => (
+                  <label
+                    key={m.id}
+                    className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
+                      form.model === m.id
+                        ? "border-[oklch(0.55_0.18_30)] bg-[oklch(0.97_0.03_30)] font-medium text-[oklch(0.45_0.18_30)]"
+                        : "border-[oklch(0.9_0.02_80)] bg-white text-[oklch(0.4_0.02_60)] hover:bg-[oklch(0.98_0.01_80)]"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="model"
+                      value={m.id}
+                      checked={form.model === m.id}
+                      onChange={() => setForm({ ...form, model: m.id })}
+                      className="sr-only"
+                    />
+                    {m.label}
+                  </label>
+                ))}
+              </div>
+            </Field>
+
             {error && (
               <div className="rounded-lg border border-[oklch(0.85_0.1_30)] bg-[oklch(0.97_0.03_30)] px-3 py-2 text-sm text-[oklch(0.45_0.18_30)]">
                 {error}
@@ -528,7 +555,9 @@ function Index() {
               disabled={loading}
               className="w-full rounded-xl bg-[oklch(0.55_0.18_30)] px-4 py-3 text-sm font-semibold text-white shadow transition hover:bg-[oklch(0.5_0.18_30)] disabled:opacity-60"
             >
-              {loading ? "Kimi 正在生成…" : "生成今日观察报告"}
+              {loading
+                ? `${MODEL_OPTIONS.find((m) => m.id === form.model)?.label ?? "AI"} 正在生成…`
+                : "生成今日观察报告"}
             </button>
           </form>
         </section>
