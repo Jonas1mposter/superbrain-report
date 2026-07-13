@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { forwardRef, useEffect, useRef, useState } from "react";
-import { generateReport, type DailyReport } from "@/lib/report.functions";
+import { generateReport, MODEL_OPTIONS, type DailyReport, type ModelId } from "@/lib/report.functions";
 import {
   DEFAULT_TEMPLATE,
   PRESETS,
