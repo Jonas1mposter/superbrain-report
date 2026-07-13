@@ -64,6 +64,7 @@ function Index() {
     project: "",
     mentor: "",
     observations: "",
+    model: "kimi" as ModelId,
   });
 
   const [template, setTemplate] = useState<PosterTemplate>(DEFAULT_TEMPLATE);
