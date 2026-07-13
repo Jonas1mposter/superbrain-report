@@ -54,7 +54,7 @@ function getProvider(model: ModelId): ProviderConfig {
   }
   return {
     url: "https://api.moonshot.cn/v1/chat/completions",
-    model: "kimi-k2-turbo-preview",
+    model: "moonshot-v1-8k",
     key: process.env.MOONSHOT_API_KEY,
     keyName: "MOONSHOT_API_KEY",
   };
