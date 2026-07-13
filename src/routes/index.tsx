@@ -519,6 +519,31 @@ function Index() {
               />
             </Field>
 
+            <Field label="生成模型">
+              <div className="flex gap-2">
+                {MODEL_OPTIONS.map((m) => (
+                  <label
+                    key={m.id}
+                    className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
+                      form.model === m.id
+                        ? "border-[oklch(0.55_0.18_30)] bg-[oklch(0.97_0.03_30)] font-medium text-[oklch(0.45_0.18_30)]"
+                        : "border-[oklch(0.9_0.02_80)] bg-white text-[oklch(0.4_0.02_60)] hover:bg-[oklch(0.98_0.01_80)]"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="model"
+                      value={m.id}
+                      checked={form.model === m.id}
+                      onChange={() => setForm({ ...form, model: m.id })}
+                      className="sr-only"
+                    />
+                    {m.label}
+                  </label>
+                ))}
+              </div>
+            </Field>
+
             {error && (
               <div className="rounded-lg border border-[oklch(0.85_0.1_30)] bg-[oklch(0.97_0.03_30)] px-3 py-2 text-sm text-[oklch(0.45_0.18_30)]">
                 {error}
@@ -530,7 +555,9 @@ function Index() {
               disabled={loading}
               className="w-full rounded-xl bg-[oklch(0.55_0.18_30)] px-4 py-3 text-sm font-semibold text-white shadow transition hover:bg-[oklch(0.5_0.18_30)] disabled:opacity-60"
             >
-              {loading ? "Kimi 正在生成…" : "生成今日观察报告"}
+              {loading
+                ? `${MODEL_OPTIONS.find((m) => m.id === form.model)?.label ?? "AI"} 正在生成…`
+                : "生成今日观察报告"}
             </button>
           </form>
         </section>
