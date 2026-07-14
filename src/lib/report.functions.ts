@@ -31,15 +31,15 @@ const BatchInputSchema = z.object({
 const ReportSchema = z.object({
   facts: z.object({
     title: z.string(),
-    points: z.array(z.string()).min(2).max(4),
+    points: z.array(z.string()).min(1),
   }),
   thoughts: z.object({
     title: z.string(),
-    points: z.array(z.string()).min(1).max(3),
+    points: z.array(z.string()).min(1),
   }),
   plans: z.object({
     title: z.string(),
-    steps: z.array(z.string()).min(1).max(3),
+    steps: z.array(z.string()).min(1),
   }),
   encouragement: z.string(),
 });
