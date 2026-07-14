@@ -1,8 +1,8 @@
-export type SectionKey = "highlight" | "stuck" | "improve";
+export type SectionKey = "facts" | "thoughts" | "plans";
 
 export type SectionConfig = {
   enabled: boolean;
-  tag: string; // e.g. "✨ 今日高光"
+  tag: string;
   tone: "warm" | "cool" | "green" | "violet" | "slate";
 };
 
@@ -10,7 +10,7 @@ export type LayoutKey = "stack" | "split" | "compact";
 
 export type PosterTemplate = {
   layout: LayoutKey;
-  themeFrom: string; // oklch values
+  themeFrom: string;
   themeVia: string;
   themeTo: string;
   showEncouragement: boolean;
@@ -28,9 +28,9 @@ export const DEFAULT_TEMPLATE: PosterTemplate = {
   showMentor: true,
   footer: "Generated with Kimi · AI for Good 观察导师工具",
   sections: {
-    highlight: { enabled: true, tag: "✨ 今日高光", tone: "warm" },
-    stuck: { enabled: true, tag: "🧱 今日卡点", tone: "cool" },
-    improve: { enabled: true, tag: "💌 给家长的建议", tone: "green" },
+    facts: { enabled: true, tag: "👀 事实 · 我看到", tone: "cool" },
+    thoughts: { enabled: true, tag: "💭 观点 · 我想到", tone: "warm" },
+    plans: { enabled: true, tag: "🧭 后续观察 · 我计划", tone: "green" },
   },
 };
 
@@ -44,9 +44,9 @@ export const PRESETS: { name: string; template: PosterTemplate }[] = [
       themeVia: "oklch(0.92 0.07 170)",
       themeTo: "oklch(0.82 0.13 160)",
       sections: {
-        highlight: { enabled: true, tag: "🌱 亮点", tone: "green" },
-        stuck: { enabled: true, tag: "💭 卡点", tone: "cool" },
-        improve: { enabled: true, tag: "💌 家长可以这样陪伴", tone: "violet" },
+        facts: { enabled: true, tag: "👀 我看到", tone: "green" },
+        thoughts: { enabled: true, tag: "💭 我想到", tone: "cool" },
+        plans: { enabled: true, tag: "🧭 我计划", tone: "violet" },
       },
     },
   },
@@ -58,9 +58,9 @@ export const PRESETS: { name: string; template: PosterTemplate }[] = [
       themeVia: "oklch(0.82 0.09 270)",
       themeTo: "oklch(0.7 0.14 260)",
       sections: {
-        highlight: { enabled: true, tag: "⭐ 闪光点", tone: "violet" },
-        stuck: { enabled: true, tag: "🧩 待解锁", tone: "slate" },
-        improve: { enabled: true, tag: "💌 给家长的话", tone: "cool" },
+        facts: { enabled: true, tag: "👀 事实", tone: "violet" },
+        thoughts: { enabled: true, tag: "💭 观点", tone: "slate" },
+        plans: { enabled: true, tag: "🧭 后续观察", tone: "cool" },
       },
     },
   },
@@ -102,7 +102,7 @@ export const TONE_STYLES: Record<
   },
 };
 
-const STORAGE_KEY = "ai4good.templates.v1";
+const STORAGE_KEY = "ai4good.templates.v2";
 
 export function loadStoredTemplates(): Record<string, PosterTemplate> {
   if (typeof window === "undefined") return {};
