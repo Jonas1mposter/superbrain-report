@@ -1,11 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { forwardRef, useEffect, useRef, useState } from "react";
-import { generateReport, MODEL_OPTIONS, type DailyReport, type ModelId } from "@/lib/report.functions";
+import {
+  generateReport,
+  generateBatchReports,
+  MODEL_OPTIONS,
+  type DailyReport,
+  type ModelId,
+} from "@/lib/report.functions";
 import {
   DEFAULT_TEMPLATE,
   PRESETS,
-  TONE_STYLES,
   deleteTemplateFor,
   loadStoredTemplates,
   saveTemplateFor,
@@ -21,7 +26,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "为 AI for Good 7天夏令营导师设计的每日观察报告生成器，一键生成包含今日高光、卡点与进步建议的 HTML 海报。",
+          "为 AI for Good 7天夏令营导师设计的每日观察报告生成器，支持一段流水账批量拆分多学员，输出事实/观点/后续观察三段式报告海报。",
       },
     ],
   }),
@@ -39,7 +44,7 @@ type ReportResult = {
   };
 };
 
-const SECTION_ORDER: SectionKey[] = ["highlight", "stuck", "improve"];
+const SECTION_ORDER: SectionKey[] = ["facts", "thoughts", "plans"];
 
 const EXAMPLE = {
   studentName: "林小满",
@@ -51,12 +56,33 @@ const EXAMPLE = {
   model: "kimi" as ModelId,
 };
 
+const BATCH_EXAMPLE = {
+  day: "3",
+  date: "2026-07-15",
+  project: "用 AI 帮助听障儿童学习语言",
+  mentor: "陈老师",
+  studentHints: "林小满、陈子墨、王一诺",
+  narrative: `9:30 早会时小满主动分享了昨天调研遇到的听障儿童妈妈的故事，还画了三页流程草图；子墨在一旁一直没说话，被点名后才小声说了一句"我还没想清楚"。
+10:20 小组讨论开始，一诺很快组织大家分工，把白板分成三块让每个人认领任务；小满认领了"慢语速切片"方向。
+11:00 子墨试了两次 TTS 工具都不满意，说"是不是我想的太简单了"，情绪低落地趴在桌上；一诺过去拍了拍他的肩膀，还把自己的笔记本让给他看。
+13:30 午饭后，小满和队友做低保真原型；一诺主动跑去问导师采访问卷的模板；子墨自己安静地重写了昨晚的方案，改完后主动举手给全组念了一遍，大家鼓掌。
+15:00 下午分享环节，小满决定明天去访谈 1 位小朋友；一诺主动申请当明天的主持人。`,
+  model: "kimi" as ModelId,
+};
+
+type Mode = "single" | "batch";
+
 function Index() {
-  const run = useServerFn(generateReport);
+  const runSingle = useServerFn(generateReport);
+  const runBatch = useServerFn(generateBatchReports);
+
+  const [mode, setMode] = useState<Mode>("single");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ReportResult | null>(null);
+  const [batchResults, setBatchResults] = useState<ReportResult[] | null>(null);
   const posterRef = useRef<HTMLDivElement>(null);
+  const batchPosterRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const [form, setForm] = useState({
     studentName: "",
@@ -65,6 +91,16 @@ function Index() {
     project: "",
     mentor: "",
     observations: "",
+    model: "kimi" as ModelId,
+  });
+
+  const [batchForm, setBatchForm] = useState({
+    day: "1",
+    date: new Date().toISOString().slice(0, 10),
+    project: "",
+    mentor: "",
+    studentHints: "",
+    narrative: "",
     model: "kimi" as ModelId,
   });
 
@@ -83,10 +119,6 @@ function Index() {
     const reader = new FileReader();
     reader.onload = async () => {
       const raw = reader.result as string;
-      // Normalize via canvas so the resulting data URL is a freshly-encoded
-      // PNG/JPEG bitmap. This avoids html-to-image edge cases where the
-      // original file's encoding (HEIC-converted, large progressive JPEG,
-      // etc.) fails to embed into the exported poster.
       try {
         const img = new Image();
         img.crossOrigin = "anonymous";
@@ -116,7 +148,6 @@ function Index() {
     setSavedNames(Object.keys(loadStoredTemplates()));
   }, []);
 
-  // Auto-load template when student name matches a saved one
   useEffect(() => {
     if (!form.studentName) return;
     const all = loadStoredTemplates();
@@ -129,8 +160,37 @@ function Index() {
     setError(null);
     setResult(null);
     try {
-      const r = (await run({ data: form })) as ReportResult;
+      const r = (await runSingle({ data: form })) as ReportResult;
       setResult(r);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "生成失败");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function onBatchSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setBatchResults(null);
+    try {
+      const hints = batchForm.studentHints
+        .split(/[,，、\n\s]+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const r = (await runBatch({
+        data: {
+          day: batchForm.day,
+          date: batchForm.date,
+          project: batchForm.project,
+          mentor: batchForm.mentor,
+          narrative: batchForm.narrative,
+          model: batchForm.model,
+          studentHints: hints,
+        },
+      })) as { results: ReportResult[] };
+      setBatchResults(r.results);
     } catch (err) {
       setError(err instanceof Error ? err.message : "生成失败");
     } finally {
@@ -151,13 +211,8 @@ function Index() {
   }
 
   const [exporting, setExporting] = useState(false);
-  async function downloadImage() {
-    if (!result || !posterRef.current) return;
-    setExporting(true);
-    const node = posterRef.current;
-    // Force a phone-friendly poster width during capture so the exported
-    // PNG looks good when shared to mobile (WeChat / 朋友圈), regardless of
-    // how wide the on-screen preview happens to be.
+
+  async function exportPosterNode(node: HTMLDivElement, filename: string) {
     const EXPORT_WIDTH = 720;
     const prev = {
       width: node.style.width,
@@ -168,10 +223,6 @@ function Index() {
     node.style.maxWidth = `${EXPORT_WIDTH}px`;
     node.style.minWidth = `${EXPORT_WIDTH}px`;
     try {
-      // Ensure every <img> (including the user-uploaded data: URL) is fully
-      // decoded before snapshotting; otherwise html-to-image will rasterize
-      // before the bitmap is ready and produce a poster with the image
-      // area missing.
       const imgs = Array.from(node.querySelectorAll("img"));
       await Promise.all(
         imgs.map((img) =>
@@ -186,9 +237,7 @@ function Index() {
               ),
         ),
       );
-      // Give the browser one more frame to commit layout after resize+decode.
       await new Promise((r) => requestAnimationFrame(() => r(null)));
-
       const { toPng } = await import("html-to-image");
       const dataUrl = await toPng(node, {
         pixelRatio: 2,
@@ -198,18 +247,66 @@ function Index() {
       });
       const a = document.createElement("a");
       a.href = dataUrl;
-      a.download = `${result.meta.studentName}-Day${result.meta.day}-观察报告.png`;
+      a.download = filename;
       a.click();
-    } catch (err) {
-      alert("导出图片失败：" + (err instanceof Error ? err.message : String(err)));
     } finally {
       node.style.width = prev.width;
       node.style.maxWidth = prev.maxWidth;
       node.style.minWidth = prev.minWidth;
+    }
+  }
+
+  async function downloadImage() {
+    if (!result || !posterRef.current) return;
+    setExporting(true);
+    try {
+      await exportPosterNode(
+        posterRef.current,
+        `${result.meta.studentName}-Day${result.meta.day}-观察报告.png`,
+      );
+    } catch (err) {
+      alert("导出图片失败：" + (err instanceof Error ? err.message : String(err)));
+    } finally {
       setExporting(false);
     }
   }
 
+  async function downloadAllBatch() {
+    if (!batchResults) return;
+    setExporting(true);
+    try {
+      for (let i = 0; i < batchResults.length; i++) {
+        const node = batchPosterRefs.current[i];
+        if (!node) continue;
+        await exportPosterNode(
+          node,
+          `${batchResults[i].meta.studentName}-Day${batchResults[i].meta.day}-观察报告.png`,
+        );
+        await new Promise((r) => setTimeout(r, 200));
+      }
+    } catch (err) {
+      alert("批量导出失败：" + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function downloadOneBatch(i: number) {
+    if (!batchResults) return;
+    const node = batchPosterRefs.current[i];
+    if (!node) return;
+    setExporting(true);
+    try {
+      await exportPosterNode(
+        node,
+        `${batchResults[i].meta.studentName}-Day${batchResults[i].meta.day}-观察报告.png`,
+      );
+    } catch (err) {
+      alert("导出失败：" + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setExporting(false);
+    }
+  }
 
   function applyPreset(idx: number) {
     setTemplate(PRESETS[idx].template);
@@ -255,6 +352,36 @@ function Index() {
           >
             {showEditor ? "收起模板编辑器" : "🎨 打开模板编辑器"}
           </button>
+        </div>
+        {/* mode tabs */}
+        <div className="mx-auto max-w-6xl px-6 pb-3">
+          <div className="inline-flex rounded-lg border border-[oklch(0.9_0.02_80)] bg-white p-1 text-xs">
+            <button
+              onClick={() => setMode("single")}
+              className={`rounded-md px-3 py-1.5 transition ${
+                mode === "single"
+                  ? "bg-[oklch(0.55_0.18_30)] text-white"
+                  : "text-[oklch(0.4_0.02_60)] hover:bg-[oklch(0.96_0.02_80)]"
+              }`}
+            >
+              单人模式
+            </button>
+            <button
+              onClick={() => setMode("batch")}
+              className={`rounded-md px-3 py-1.5 transition ${
+                mode === "batch"
+                  ? "bg-[oklch(0.55_0.18_30)] text-white"
+                  : "text-[oklch(0.4_0.02_60)] hover:bg-[oklch(0.96_0.02_80)]"
+              }`}
+            >
+              批量模式 · 一段流水账
+            </button>
+          </div>
+          <span className="ml-3 text-xs text-[oklch(0.5_0.02_60)]">
+            {mode === "single"
+              ? "为单个学员生成一份报告"
+              : "写下今天的流水账，AI 自动按学员拆分并逐个生成"}
+          </span>
         </div>
       </header>
 
@@ -430,142 +557,260 @@ function Index() {
       )}
 
       <main className="mx-auto grid max-w-6xl gap-8 px-6 py-8 lg:grid-cols-[1fr_1.1fr]">
-        <section className="rounded-2xl border border-[oklch(0.9_0.02_80)] bg-white p-6 shadow-sm">
-          <h2 className="mb-1 flex items-center justify-between text-lg font-semibold">
-            填写基础信息
-            <button
-              type="button"
-              onClick={() => setForm(EXAMPLE)}
-              className="text-xs font-normal text-[oklch(0.5_0.15_30)] hover:underline"
-            >
-              填入示例
-            </button>
-          </h2>
-          <p className="mb-5 text-sm text-[oklch(0.5_0.02_60)]">
-            写下你今天对学员的真实观察，AI 会帮你整理成一份温暖的报告海报。
-          </p>
-          <form onSubmit={onSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="学员姓名">
+        {mode === "single" ? (
+          <section className="rounded-2xl border border-[oklch(0.9_0.02_80)] bg-white p-6 shadow-sm">
+            <h2 className="mb-1 flex items-center justify-between text-lg font-semibold">
+              填写基础信息
+              <button
+                type="button"
+                onClick={() => setForm(EXAMPLE)}
+                className="text-xs font-normal text-[oklch(0.5_0.15_30)] hover:underline"
+              >
+                填入示例
+              </button>
+            </h2>
+            <p className="mb-5 text-sm text-[oklch(0.5_0.02_60)]">
+              写下你今天对学员的真实观察，AI 会输出「事实 / 观点 / 后续观察」三段式报告。
+            </p>
+            <form onSubmit={onSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="学员姓名">
+                  <input
+                    required
+                    value={form.studentName}
+                    onChange={(e) => setForm({ ...form, studentName: e.target.value })}
+                    className="input"
+                    placeholder="例：林小满"
+                  />
+                </Field>
+                <Field label="第几天 (1-7)">
+                  <input
+                    required
+                    type="number"
+                    min={1}
+                    max={7}
+                    value={form.day}
+                    onChange={(e) => setForm({ ...form, day: e.target.value })}
+                    className="input"
+                  />
+                </Field>
+                <Field label="日期">
+                  <input
+                    required
+                    type="date"
+                    value={form.date}
+                    onChange={(e) => setForm({ ...form, date: e.target.value })}
+                    className="input"
+                  />
+                </Field>
+                <Field label="带教导师">
+                  <input
+                    value={form.mentor}
+                    onChange={(e) => setForm({ ...form, mentor: e.target.value })}
+                    className="input"
+                    placeholder="选填"
+                  />
+                </Field>
+              </div>
+              <Field label="项目方向">
                 <input
+                  value={form.project}
+                  onChange={(e) => setForm({ ...form, project: e.target.value })}
+                  className="input"
+                  placeholder="例：用 AI 帮助听障儿童学习语言"
+                />
+              </Field>
+              <Field label="海报配图（选填）">
+                <input type="file" accept="image/*" onChange={onPickImage} className="input" />
+                {image && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <img src={image} alt="预览" className="h-14 w-14 rounded-md object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setImage(null)}
+                      className="text-xs text-[oklch(0.5_0.15_30)] hover:underline"
+                    >
+                      移除图片
+                    </button>
+                  </div>
+                )}
+              </Field>
+              <Field label="今日观察记录">
+                <textarea
                   required
-                  value={form.studentName}
-                  onChange={(e) => setForm({ ...form, studentName: e.target.value })}
-                  className="input"
-                  placeholder="例：林小满"
+                  rows={8}
+                  value={form.observations}
+                  onChange={(e) => setForm({ ...form, observations: e.target.value })}
+                  className="input resize-y"
+                  placeholder={"尽量具体，比如：\n- 上午做了什么\n- 遇到的困难\n- 与队友的互动\n- 让你眼前一亮的瞬间"}
                 />
               </Field>
-              <Field label="第几天 (1-7)">
-                <input
-                  required
-                  type="number"
-                  min={1}
-                  max={7}
-                  value={form.day}
-                  onChange={(e) => setForm({ ...form, day: e.target.value })}
-                  className="input"
-                />
+              <Field label="生成模型">
+                <div className="flex gap-2">
+                  {MODEL_OPTIONS.map((m) => (
+                    <label
+                      key={m.id}
+                      className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
+                        form.model === m.id
+                          ? "border-[oklch(0.55_0.18_30)] bg-[oklch(0.97_0.03_30)] font-medium text-[oklch(0.45_0.18_30)]"
+                          : "border-[oklch(0.9_0.02_80)] bg-white text-[oklch(0.4_0.02_60)] hover:bg-[oklch(0.98_0.01_80)]"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="model"
+                        value={m.id}
+                        checked={form.model === m.id}
+                        onChange={() => setForm({ ...form, model: m.id })}
+                        className="sr-only"
+                      />
+                      {m.label}
+                    </label>
+                  ))}
+                </div>
               </Field>
-              <Field label="日期">
-                <input
-                  required
-                  type="date"
-                  value={form.date}
-                  onChange={(e) => setForm({ ...form, date: e.target.value })}
-                  className="input"
-                />
-              </Field>
-              <Field label="带教导师">
-                <input
-                  value={form.mentor}
-                  onChange={(e) => setForm({ ...form, mentor: e.target.value })}
-                  className="input"
-                  placeholder="选填"
-                />
-              </Field>
-            </div>
-            <Field label="项目方向">
-              <input
-                value={form.project}
-                onChange={(e) => setForm({ ...form, project: e.target.value })}
-                className="input"
-                placeholder="例：用 AI 帮助听障儿童学习语言"
-              />
-            </Field>
-            <Field label="海报配图（选填）">
-              <input type="file" accept="image/*" onChange={onPickImage} className="input" />
-              {image && (
-                <div className="mt-2 flex items-center gap-2">
-                  <img src={image} alt="预览" className="h-14 w-14 rounded-md object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => setImage(null)}
-                    className="text-xs text-[oklch(0.5_0.15_30)] hover:underline"
-                  >
-                    移除图片
-                  </button>
+
+              {error && (
+                <div className="rounded-lg border border-[oklch(0.85_0.1_30)] bg-[oklch(0.97_0.03_30)] px-3 py-2 text-sm text-[oklch(0.45_0.18_30)]">
+                  {error}
                 </div>
               )}
-            </Field>
 
-            <Field label="今日观察记录">
-              <textarea
-                required
-                rows={8}
-                value={form.observations}
-                onChange={(e) => setForm({ ...form, observations: e.target.value })}
-                className="input resize-y"
-                placeholder={"尽量具体，比如：\n- 上午做了什么\n- 遇到的困难\n- 与队友的互动\n- 让你眼前一亮的瞬间"}
-              />
-            </Field>
-
-            <Field label="生成模型">
-              <div className="flex gap-2">
-                {MODEL_OPTIONS.map((m) => (
-                  <label
-                    key={m.id}
-                    className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
-                      form.model === m.id
-                        ? "border-[oklch(0.55_0.18_30)] bg-[oklch(0.97_0.03_30)] font-medium text-[oklch(0.45_0.18_30)]"
-                        : "border-[oklch(0.9_0.02_80)] bg-white text-[oklch(0.4_0.02_60)] hover:bg-[oklch(0.98_0.01_80)]"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="model"
-                      value={m.id}
-                      checked={form.model === m.id}
-                      onChange={() => setForm({ ...form, model: m.id })}
-                      className="sr-only"
-                    />
-                    {m.label}
-                  </label>
-                ))}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl bg-[oklch(0.55_0.18_30)] px-4 py-3 text-sm font-semibold text-white shadow transition hover:bg-[oklch(0.5_0.18_30)] disabled:opacity-60"
+              >
+                {loading
+                  ? `${MODEL_OPTIONS.find((m) => m.id === form.model)?.label ?? "AI"} 正在生成…`
+                  : "生成今日观察报告"}
+              </button>
+            </form>
+          </section>
+        ) : (
+          <section className="rounded-2xl border border-[oklch(0.9_0.02_80)] bg-white p-6 shadow-sm">
+            <h2 className="mb-1 flex items-center justify-between text-lg font-semibold">
+              一段流水账，多人生成
+              <button
+                type="button"
+                onClick={() => setBatchForm(BATCH_EXAMPLE)}
+                className="text-xs font-normal text-[oklch(0.5_0.15_30)] hover:underline"
+              >
+                填入示例
+              </button>
+            </h2>
+            <p className="mb-5 text-sm text-[oklch(0.5_0.02_60)]">
+              按时间顺序写完你的观察流水账，AI 会自动识别每个学员的片段，逐份生成「事实 / 观点 / 后续观察」报告。
+            </p>
+            <form onSubmit={onBatchSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="第几天 (1-7)">
+                  <input
+                    required
+                    type="number"
+                    min={1}
+                    max={7}
+                    value={batchForm.day}
+                    onChange={(e) => setBatchForm({ ...batchForm, day: e.target.value })}
+                    className="input"
+                  />
+                </Field>
+                <Field label="日期">
+                  <input
+                    required
+                    type="date"
+                    value={batchForm.date}
+                    onChange={(e) => setBatchForm({ ...batchForm, date: e.target.value })}
+                    className="input"
+                  />
+                </Field>
+                <Field label="项目方向">
+                  <input
+                    value={batchForm.project}
+                    onChange={(e) => setBatchForm({ ...batchForm, project: e.target.value })}
+                    className="input"
+                    placeholder="选填"
+                  />
+                </Field>
+                <Field label="带教导师">
+                  <input
+                    value={batchForm.mentor}
+                    onChange={(e) => setBatchForm({ ...batchForm, mentor: e.target.value })}
+                    className="input"
+                    placeholder="选填"
+                  />
+                </Field>
               </div>
-            </Field>
+              <Field label="学员名单（选填，可用逗号/顿号/换行分隔）">
+                <input
+                  value={batchForm.studentHints}
+                  onChange={(e) => setBatchForm({ ...batchForm, studentHints: e.target.value })}
+                  className="input"
+                  placeholder="例：林小满、陈子墨、王一诺（留空则由 AI 自行识别）"
+                />
+              </Field>
+              <Field label="今日流水账观察">
+                <textarea
+                  required
+                  rows={14}
+                  value={batchForm.narrative}
+                  onChange={(e) => setBatchForm({ ...batchForm, narrative: e.target.value })}
+                  className="input resize-y"
+                  placeholder={
+                    "按时间顺序写就好，比如：\n9:30 早会时小满主动分享了……\n10:20 小组讨论一诺组织分工……\n11:00 子墨试了两次工具都不满意……"
+                  }
+                />
+              </Field>
+              <Field label="生成模型">
+                <div className="flex gap-2">
+                  {MODEL_OPTIONS.map((m) => (
+                    <label
+                      key={m.id}
+                      className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
+                        batchForm.model === m.id
+                          ? "border-[oklch(0.55_0.18_30)] bg-[oklch(0.97_0.03_30)] font-medium text-[oklch(0.45_0.18_30)]"
+                          : "border-[oklch(0.9_0.02_80)] bg-white text-[oklch(0.4_0.02_60)] hover:bg-[oklch(0.98_0.01_80)]"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="batch-model"
+                        value={m.id}
+                        checked={batchForm.model === m.id}
+                        onChange={() => setBatchForm({ ...batchForm, model: m.id })}
+                        className="sr-only"
+                      />
+                      {m.label}
+                    </label>
+                  ))}
+                </div>
+              </Field>
 
-            {error && (
-              <div className="rounded-lg border border-[oklch(0.85_0.1_30)] bg-[oklch(0.97_0.03_30)] px-3 py-2 text-sm text-[oklch(0.45_0.18_30)]">
-                {error}
-              </div>
-            )}
+              {error && (
+                <div className="rounded-lg border border-[oklch(0.85_0.1_30)] bg-[oklch(0.97_0.03_30)] px-3 py-2 text-sm text-[oklch(0.45_0.18_30)]">
+                  {error}
+                </div>
+              )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-xl bg-[oklch(0.55_0.18_30)] px-4 py-3 text-sm font-semibold text-white shadow transition hover:bg-[oklch(0.5_0.18_30)] disabled:opacity-60"
-            >
-              {loading
-                ? `${MODEL_OPTIONS.find((m) => m.id === form.model)?.label ?? "AI"} 正在生成…`
-                : "生成今日观察报告"}
-            </button>
-          </form>
-        </section>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl bg-[oklch(0.55_0.18_30)] px-4 py-3 text-sm font-semibold text-white shadow transition hover:bg-[oklch(0.5_0.18_30)] disabled:opacity-60"
+              >
+                {loading
+                  ? `${MODEL_OPTIONS.find((m) => m.id === batchForm.model)?.label ?? "AI"} 正在拆分并生成…`
+                  : "拆分流水账并批量生成"}
+              </button>
+            </form>
+          </section>
+        )}
 
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">海报预览</h2>
-            {result && (
+            <h2 className="text-lg font-semibold">
+              {mode === "single" ? "海报预览" : `海报预览${batchResults ? `（${batchResults.length} 位学员）` : ""}`}
+            </h2>
+            {mode === "single" && result && (
               <div className="flex gap-2">
                 <button
                   onClick={downloadImage}
@@ -582,12 +827,55 @@ function Index() {
                 </button>
               </div>
             )}
+            {mode === "batch" && batchResults && batchResults.length > 0 && (
+              <button
+                onClick={downloadAllBatch}
+                disabled={exporting}
+                className="rounded-lg bg-[oklch(0.55_0.18_30)] px-3 py-1.5 text-xs font-medium text-white hover:bg-[oklch(0.5_0.18_30)] disabled:opacity-60"
+              >
+                {exporting ? "导出中…" : "📷 批量导出图片"}
+              </button>
+            )}
           </div>
-          {result ? (
-            <Poster ref={posterRef} data={result} template={template} image={image} />
+
+          {mode === "single" ? (
+            result ? (
+              <Poster ref={posterRef} data={result} template={template} image={image} />
+            ) : (
+              <div className="flex h-[520px] items-center justify-center rounded-2xl border border-dashed border-[oklch(0.85_0.03_60)] bg-white/60 text-sm text-[oklch(0.55_0.02_60)]">
+                填写左侧表单，生成的海报会出现在这里
+              </div>
+            )
+          ) : batchResults && batchResults.length > 0 ? (
+            <div className="space-y-6">
+              {batchResults.map((r, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="flex items-center justify-between px-1">
+                    <span className="text-xs font-medium text-[oklch(0.45_0.02_60)]">
+                      #{i + 1} · {r.meta.studentName}
+                    </span>
+                    <button
+                      onClick={() => downloadOneBatch(i)}
+                      disabled={exporting}
+                      className="rounded-md border border-[oklch(0.85_0.03_60)] bg-white px-2 py-0.5 text-[11px] hover:bg-[oklch(0.96_0.02_80)] disabled:opacity-60"
+                    >
+                      导出这份
+                    </button>
+                  </div>
+                  <Poster
+                    ref={(el) => {
+                      batchPosterRefs.current[i] = el;
+                    }}
+                    data={r}
+                    template={template}
+                    image={null}
+                  />
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="flex h-[520px] items-center justify-center rounded-2xl border border-dashed border-[oklch(0.85_0.03_60)] bg-white/60 text-sm text-[oklch(0.55_0.02_60)]">
-              填写左侧表单，生成的海报会出现在这里
+              写下一段流水账，AI 会为每位被观察到的学员各生成一份报告
             </div>
           )}
         </section>
@@ -614,7 +902,11 @@ function Index() {
 }
 
 function sectionLabel(k: SectionKey) {
-  return k === "highlight" ? "今日高光" : k === "stuck" ? "今日卡点" : "给家长的建议";
+  return k === "facts" ? "事实 · 我看到" : k === "thoughts" ? "观点 · 我想到" : "后续观察 · 我计划";
+}
+
+function sectionEn(k: SectionKey) {
+  return k === "facts" ? "FACTS" : k === "thoughts" ? "THOUGHTS" : "PLANS";
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -637,27 +929,23 @@ const Poster = forwardRef<
       ref={ref}
       className="relative overflow-hidden px-6 py-9 sm:px-11 sm:py-14"
       style={{
-        background:
-          "linear-gradient(180deg, #eaf2fb 0%, #f3f7fc 35%, #ffffff 100%)",
+        background: "linear-gradient(180deg, #eaf2fb 0%, #f3f7fc 35%, #ffffff 100%)",
         color: "#0f1f3a",
         fontFamily:
           '-apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif',
       }}
     >
-      {/* top thin accent bar */}
       <div
         aria-hidden
         className="absolute left-0 right-0 top-0 h-[5px]"
         style={{ background: "linear-gradient(90deg,#3b82f6 0%,#93c5fd 60%,transparent 100%)" }}
       />
-      {/* decorative soft square */}
       <div
         aria-hidden
         className="pointer-events-none absolute right-5 top-8 h-24 w-24 rounded-[20px] sm:right-8 sm:top-10 sm:h-40 sm:w-40 sm:rounded-[28px]"
         style={{ background: "rgba(186,214,242,0.35)" }}
       />
 
-      {/* header */}
       <div className="relative">
         <div className="flex items-center gap-3 text-[12px] font-semibold uppercase tracking-[0.24em] text-[#3b82f6] sm:text-[13px] sm:tracking-[0.28em]">
           <span className="inline-block h-px w-6 bg-[#3b82f6] sm:w-8" />
@@ -676,7 +964,6 @@ const Poster = forwardRef<
         </div>
       </div>
 
-      {/* student card */}
       <div className="relative mt-7 rounded-2xl bg-white/70 px-5 py-5 backdrop-blur-sm ring-1 ring-[#dbe6f4] sm:mt-10 sm:px-7 sm:py-6">
         <div className="flex items-start justify-between gap-4 sm:gap-6">
           <div className="min-w-0">
@@ -685,45 +972,40 @@ const Poster = forwardRef<
           </div>
           <div className="shrink-0 text-right">
             <div className="text-[12px] font-medium tracking-[0.32em] text-[#94a3b8] sm:text-[14px] sm:tracking-[0.4em]">今 日 状 态</div>
-            <div className="mt-2 text-[15px] font-semibold text-[#3b82f6] sm:text-[17px]">
-              ↑ 持续观察中
-            </div>
+            <div className="mt-2 text-[15px] font-semibold text-[#3b82f6] sm:text-[17px]">↑ 持续观察中</div>
           </div>
         </div>
       </div>
 
-      {/* image (optional) */}
       {image && (
         <figure className="relative mt-5 overflow-hidden rounded-2xl ring-1 ring-[#dbe6f4] bg-white sm:mt-6">
           <img src={image} alt="" className="block max-h-[260px] w-full object-cover sm:max-h-[360px]" />
         </figure>
       )}
 
-      {/* sections */}
       <div className="relative mt-5 space-y-4 sm:mt-6 sm:space-y-5">
-        {template.sections.highlight.enabled && (
-          <SectionCard tag={template.sections.highlight.tag} en="HIGHLIGHTS">
+        {template.sections.facts.enabled && (
+          <SectionCard tag={template.sections.facts.tag} en="FACTS">
             <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
-              {report.highlight.points.map((p, i) => (
+              {report.facts.points.map((p, i) => (
                 <li key={i}>{p}</li>
               ))}
             </ul>
           </SectionCard>
         )}
-
-        {template.sections.stuck.enabled && (
-          <SectionCard tag={template.sections.stuck.tag} en="REFLECTION">
+        {template.sections.thoughts.enabled && (
+          <SectionCard tag={template.sections.thoughts.tag} en="THOUGHTS">
             <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
-              {report.stuck.points.map((p, i) => (
+              {report.thoughts.points.map((p, i) => (
                 <li key={i}>{p}</li>
               ))}
             </ul>
           </SectionCard>
         )}
-        {template.sections.improve.enabled && (
-          <SectionCard tag={template.sections.improve.tag} en="FOR PARENTS">
+        {template.sections.plans.enabled && (
+          <SectionCard tag={template.sections.plans.tag} en="PLANS">
             <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
-              {report.improve.steps.map((s, i) => (
+              {report.plans.steps.map((s, i) => (
                 <li key={i}>{s}</li>
               ))}
             </ul>
@@ -731,7 +1013,6 @@ const Poster = forwardRef<
         )}
       </div>
 
-      {/* core trait / encouragement dark card */}
       {template.showEncouragement && (
         <div className="relative mt-6 rounded-2xl bg-[#1f2a3d] px-6 py-6 text-center sm:mt-7 sm:px-8 sm:py-7">
           <div className="text-[13px] font-semibold tracking-[0.28em] text-[#7eb6ff] sm:text-[14px] sm:tracking-[0.32em]">
@@ -743,17 +1024,15 @@ const Poster = forwardRef<
         </div>
       )}
 
-      {/* coach line */}
       <div className="relative mt-7 text-center sm:mt-9">
         <div className="text-[13px] font-semibold tracking-[0.28em] text-[#3b82f6] sm:text-[14px] sm:tracking-[0.32em]">
-          教练反馈
+          今日观察主线
         </div>
         <div className="mt-2 text-[17px] font-bold text-[#0b1b35] sm:text-[20px]">
-          "{report.highlight.title}"
+          "{report.facts.title}"
         </div>
       </div>
 
-      {/* footer meta */}
       <div className="relative mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px] text-[#64748b] sm:mt-10 sm:gap-8 sm:text-[15px]">
         {template.showMentor && meta.mentor && (
           <span className="inline-flex items-center gap-1.5">
@@ -811,15 +1090,14 @@ function SectionCard({
 
 function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: string | null) {
   const { report, meta } = data;
-  const steps = report.improve.steps.map((s) => `<li>${esc(s)}</li>`).join("");
-  const highlightPoints = report.highlight.points.map((p) => `<li>${esc(p)}</li>`).join("");
-  const stuckPoints = report.stuck.points.map((p) => `<li>${esc(p)}</li>`).join("");
+  const factsPoints = report.facts.points.map((p) => `<li>${esc(p)}</li>`).join("");
+  const thoughtsPoints = report.thoughts.points.map((p) => `<li>${esc(p)}</li>`).join("");
+  const plansSteps = report.plans.steps.map((s) => `<li>${esc(s)}</li>`).join("");
 
   const section = (tag: string, en: string, inner: string, enabled: boolean) =>
     enabled
       ? `<div class="card"><div class="cardhead"><span class="ico"></span><span class="tag">${esc(tag)} <em>/ ${en}</em></span></div><div class="cardbody">${inner}</div></div>`
       : "";
-
 
   const imgHtml = image
     ? `<figure class="figure"><img src="${esc(image)}" alt=""/></figure>`
@@ -896,12 +1174,12 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
   </div>
   ${imgHtml}
   <div class="sections">
-    ${section(t.sections.highlight.tag, "HIGHLIGHTS", `<ul>${highlightPoints}</ul>`, t.sections.highlight.enabled)}
-    ${section(t.sections.stuck.tag, "REFLECTION", `<ul>${stuckPoints}</ul>`, t.sections.stuck.enabled)}
-    ${section(t.sections.improve.tag, "FOR PARENTS", `<ul>${steps}</ul>`, t.sections.improve.enabled)}
+    ${section(t.sections.facts.tag, "FACTS", `<ul>${factsPoints}</ul>`, t.sections.facts.enabled)}
+    ${section(t.sections.thoughts.tag, "THOUGHTS", `<ul>${thoughtsPoints}</ul>`, t.sections.thoughts.enabled)}
+    ${section(t.sections.plans.tag, "PLANS", `<ul>${plansSteps}</ul>`, t.sections.plans.enabled)}
   </div>
   ${t.showEncouragement ? `<div class="trait"><div class="l">核心特质 / TRAIT</div><div class="q">"${esc(report.encouragement)}"</div></div>` : ""}
-  <div class="coach"><div class="l">教练反馈</div><div class="q">"${esc(report.highlight.title)}"</div></div>
+  <div class="coach"><div class="l">今日观察主线</div><div class="q">"${esc(report.facts.title)}"</div></div>
   <div class="meta">
     ${t.showMentor && meta.mentor ? `<span>观察教练：${esc(meta.mentor)}</span>` : ""}
     <span>${esc(formatDateCnPlain(meta.date))}</span>
@@ -923,5 +1201,3 @@ function esc(s: string) {
     (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!,
   );
 }
-
-
