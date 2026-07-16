@@ -15,6 +15,12 @@ export type PosterTemplate = {
   themeFrom: string;
   themeVia: string;
   themeTo: string;
+  /** Hex accent color used by the poster (kicker, day pill, section titles, meta). */
+  themeAccent?: string;
+  /** Hex background top color for the page gradient. */
+  themeBgTop?: string;
+  /** Hex dark color for the encouragement/trait band. */
+  themeTraitBg?: string;
   showEncouragement: boolean;
   showMentor: boolean;
   footer: string;
@@ -45,6 +51,9 @@ export const DEFAULT_TEMPLATE: PosterTemplate = {
   themeFrom: "oklch(0.97 0.04 80)",
   themeVia: "oklch(0.94 0.06 50)",
   themeTo: "oklch(0.88 0.12 30)",
+  themeAccent: "#3b82f6",
+  themeBgTop: "#eaf2fb",
+  themeTraitBg: "#1f2a3d",
   showEncouragement: true,
   showMentor: true,
   footer: "Generated with Kimi · AI for Good 观察导师工具",
@@ -61,6 +70,9 @@ export const HIGHLIGHT_TEMPLATE: PosterTemplate = {
   themeFrom: "oklch(0.97 0.04 80)",
   themeVia: "oklch(0.94 0.06 50)",
   themeTo: "oklch(0.88 0.12 30)",
+  themeAccent: "#e07a3c",
+  themeBgTop: "#fdf1e6",
+  themeTraitBg: "#3a2417",
   showEncouragement: true,
   showMentor: true,
   footer: "Generated with Kimi · AI for Good 导师工具",
