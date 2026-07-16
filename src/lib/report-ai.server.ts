@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 type ModelId = "kimi" | "deepseek";
+type ReportStyle = "observation" | "highlight";
 
 type SingleReportInput = {
   studentName: string;
@@ -10,6 +11,7 @@ type SingleReportInput = {
   observations: string;
   mentor?: string;
   model: ModelId;
+  reportStyle?: ReportStyle;
 };
 
 type BatchReportInput = {
@@ -20,6 +22,7 @@ type BatchReportInput = {
   narrative: string;
   studentHints: string[];
   model: ModelId;
+  reportStyle?: ReportStyle;
 };
 
 type ProviderConfig = {
