@@ -1210,9 +1210,9 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
   </div>
   ${imgHtml}
   <div class="sections">
-    ${section(t.sections.facts.tag, "FACTS", `<ul>${factsPoints}</ul>`, t.sections.facts.enabled)}
-    ${section(t.sections.thoughts.tag, "THOUGHTS", `<ul>${thoughtsPoints}</ul>`, t.sections.thoughts.enabled)}
-    ${section(t.sections.plans.tag, "PLANS", `<ul>${plansSteps}</ul>`, t.sections.plans.enabled)}
+    ${section(t.sections.facts.tag, en.facts, `<ul>${factsPoints}</ul>`, t.sections.facts.enabled)}
+    ${section(t.sections.thoughts.tag, en.thoughts, `<ul>${thoughtsPoints}</ul>`, t.sections.thoughts.enabled)}
+    ${section(t.sections.plans.tag, en.plans, `<ul>${plansSteps}</ul>`, t.sections.plans.enabled)}
   </div>
   ${t.showEncouragement ? `<div class="trait"><div class="l">核心特质 / TRAIT</div><div class="q">"${esc(report.encouragement)}"</div></div>` : ""}
   <div class="coach"><div class="l">今日观察主线</div><div class="q">"${esc(report.facts.title)}"</div></div>
