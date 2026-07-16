@@ -1125,6 +1125,7 @@ function SectionCard({
 
 function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: string | null) {
   const { report, meta } = data;
+  const en = SECTION_EN[t.reportStyle ?? "observation"];
   const factsPoints = report.facts.points.map((p) => `<li>${esc(p)}</li>`).join("");
   const thoughtsPoints = report.thoughts.points.map((p) => `<li>${esc(p)}</li>`).join("");
   const plansSteps = report.plans.steps.map((s) => `<li>${esc(s)}</li>`).join("");
