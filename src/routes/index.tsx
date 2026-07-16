@@ -1019,7 +1019,7 @@ const Poster = forwardRef<
 
       <div className="relative mt-5 space-y-4 sm:mt-6 sm:space-y-5">
         {template.sections.facts.enabled && (
-          <SectionCard tag={template.sections.facts.tag} en="FACTS">
+          <SectionCard tag={template.sections.facts.tag} en={en.facts}>
             <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
               {report.facts.points.map((p, i) => (
                 <li key={i}>{p}</li>
@@ -1028,7 +1028,7 @@ const Poster = forwardRef<
           </SectionCard>
         )}
         {template.sections.thoughts.enabled && (
-          <SectionCard tag={template.sections.thoughts.tag} en="THOUGHTS">
+          <SectionCard tag={template.sections.thoughts.tag} en={en.thoughts}>
             <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
               {report.thoughts.points.map((p, i) => (
                 <li key={i}>{p}</li>
@@ -1037,7 +1037,7 @@ const Poster = forwardRef<
           </SectionCard>
         )}
         {template.sections.plans.enabled && (
-          <SectionCard tag={template.sections.plans.tag} en="PLANS">
+          <SectionCard tag={template.sections.plans.tag} en={en.plans}>
             <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
               {report.plans.steps.map((s, i) => (
                 <li key={i}>{s}</li>
