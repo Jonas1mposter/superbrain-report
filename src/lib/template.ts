@@ -8,6 +8,8 @@ export type SectionConfig = {
 
 export type LayoutKey = "stack" | "split" | "compact";
 
+export type ReportStyle = "observation" | "highlight";
+
 export type PosterTemplate = {
   layout: LayoutKey;
   themeFrom: string;
@@ -16,7 +18,26 @@ export type PosterTemplate = {
   showEncouragement: boolean;
   showMentor: boolean;
   footer: string;
+  reportStyle?: ReportStyle;
   sections: Record<SectionKey, SectionConfig>;
+};
+
+export const REPORT_STYLE_OPTIONS: { id: ReportStyle; label: string; desc: string }[] = [
+  {
+    id: "observation",
+    label: "观察三段",
+    desc: "事实 / 观点 / 后续观察（面向家长的专业观察者视角）",
+  },
+  {
+    id: "highlight",
+    label: "高光卡点",
+    desc: "高光 / 卡点 / 家长建议（更温暖的家庭沟通版）",
+  },
+];
+
+export const SECTION_EN: Record<ReportStyle, Record<SectionKey, string>> = {
+  observation: { facts: "FACTS", thoughts: "THOUGHTS", plans: "PLANS" },
+  highlight: { facts: "HIGHLIGHT", thoughts: "CHECKPOINT", plans: "ADVICE" },
 };
 
 export const DEFAULT_TEMPLATE: PosterTemplate = {
@@ -27,12 +48,33 @@ export const DEFAULT_TEMPLATE: PosterTemplate = {
   showEncouragement: true,
   showMentor: true,
   footer: "Generated with Kimi · AI for Good 观察导师工具",
+  reportStyle: "observation",
   sections: {
     facts: { enabled: true, tag: "👀 事实 · 我看到", tone: "cool" },
     thoughts: { enabled: true, tag: "💭 观点 · 我想到", tone: "warm" },
     plans: { enabled: true, tag: "🧭 后续观察 · 我计划", tone: "green" },
   },
 };
+
+export const HIGHLIGHT_TEMPLATE: PosterTemplate = {
+  layout: "stack",
+  themeFrom: "oklch(0.97 0.04 80)",
+  themeVia: "oklch(0.94 0.06 50)",
+  themeTo: "oklch(0.88 0.12 30)",
+  showEncouragement: true,
+  showMentor: true,
+  footer: "Generated with Kimi · AI for Good 导师工具",
+  reportStyle: "highlight",
+  sections: {
+    facts: { enabled: true, tag: "✨ 今日高光", tone: "warm" },
+    thoughts: { enabled: true, tag: "🌱 卡点与支持", tone: "cool" },
+    plans: { enabled: true, tag: "🤝 给家长的建议", tone: "green" },
+  },
+};
+
+export function templateForStyle(style: ReportStyle): PosterTemplate {
+  return style === "highlight" ? HIGHLIGHT_TEMPLATE : DEFAULT_TEMPLATE;
+}
 
 export const PRESETS: { name: string; template: PosterTemplate }[] = [
   { name: "暖阳", template: DEFAULT_TEMPLATE },
