@@ -1134,22 +1134,31 @@ function formatDateCn(d: string) {
 function SectionCard({
   tag,
   en,
+  accent = "#3b82f6",
   children,
 }: {
   tag: string;
   en: string;
+  accent?: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl bg-white px-5 py-4 ring-1 ring-[#e4ecf6] shadow-[0_2px_10px_-4px_rgba(59,130,246,0.08)] sm:px-6 sm:py-5">
+    <div
+      className="rounded-2xl bg-white px-5 py-4 ring-1 ring-[#e4ecf6] sm:px-6 sm:py-5"
+      style={{ boxShadow: `0 2px 10px -4px color-mix(in oklab, ${accent} 20%, transparent)` }}
+    >
       <div className="mb-3 flex items-center gap-2.5">
         <span
           aria-hidden
-          className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-[#eaf2fb] text-[#3b82f6]"
+          className="inline-flex h-7 w-7 items-center justify-center rounded-lg"
+          style={{
+            background: `color-mix(in oklab, ${accent} 15%, #ffffff)`,
+            color: accent,
+          }}
         >
-          <span className="inline-block h-2 w-2 rounded-sm bg-[#3b82f6]" />
+          <span className="inline-block h-2 w-2 rounded-sm" style={{ background: accent }} />
         </span>
-        <span className="text-[15px] font-semibold text-[#3b82f6] sm:text-[16px]">
+        <span className="text-[15px] font-semibold sm:text-[16px]" style={{ color: accent }}>
           {tag} <span className="text-[#94a3b8] font-medium">/ {en}</span>
         </span>
       </div>
