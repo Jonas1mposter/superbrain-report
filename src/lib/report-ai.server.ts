@@ -260,7 +260,7 @@ export async function buildSingleReport(data: SingleReportInput) {
     throw new Error(`缺少 ${provider.keyName}，请先在 Lovable 中配置对应的 API Key。`);
   }
 
-  const parsed = await callProvider(provider, SYSTEM_PROMPT_SINGLE, buildSingleUserPrompt(data), {
+  const parsed = await callProvider(provider, systemPromptFor(data.reportStyle), buildSingleUserPrompt(data), {
     maxTokens: 2048,
     retryMaxTokens: 4096,
     temperature: 0.35,
