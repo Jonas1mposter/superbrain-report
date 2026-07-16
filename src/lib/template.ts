@@ -15,6 +15,12 @@ export type PosterTemplate = {
   themeFrom: string;
   themeVia: string;
   themeTo: string;
+  /** Hex accent color used by the poster (kicker, day pill, section titles, meta). */
+  themeAccent?: string;
+  /** Hex background top color for the page gradient. */
+  themeBgTop?: string;
+  /** Hex dark color for the encouragement/trait band. */
+  themeTraitBg?: string;
   showEncouragement: boolean;
   showMentor: boolean;
   footer: string;
