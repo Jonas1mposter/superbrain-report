@@ -462,28 +462,45 @@ function Index() {
                     <option value="compact">紧凑单卡</option>
                   </select>
                 </Field>
-                <div className="grid grid-cols-3 gap-2">
-                  <Field label="渐变起">
-                    <input
-                      className="input"
-                      value={template.themeFrom}
-                      onChange={(e) => setTemplate({ ...template, themeFrom: e.target.value })}
+                <div>
+                  <div className="mb-1.5 text-xs font-medium text-[oklch(0.4_0.02_60)]">主题配色</div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <ColorField
+                      label="主色"
+                      value={template.themeAccent || "#3b82f6"}
+                      onChange={(v) => setTemplate({ ...template, themeAccent: v })}
                     />
-                  </Field>
-                  <Field label="渐变中">
-                    <input
-                      className="input"
-                      value={template.themeVia}
-                      onChange={(e) => setTemplate({ ...template, themeVia: e.target.value })}
+                    <ColorField
+                      label="背景"
+                      value={template.themeBgTop || "#eaf2fb"}
+                      onChange={(v) => setTemplate({ ...template, themeBgTop: v })}
                     />
-                  </Field>
-                  <Field label="渐变止">
-                    <input
-                      className="input"
-                      value={template.themeTo}
-                      onChange={(e) => setTemplate({ ...template, themeTo: e.target.value })}
+                    <ColorField
+                      label="金句底"
+                      value={template.themeTraitBg || "#1f2a3d"}
+                      onChange={(v) => setTemplate({ ...template, themeTraitBg: v })}
                     />
-                  </Field>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    <span className="text-[11px] text-[oklch(0.5_0.02_60)]">快选：</span>
+                    {ACCENT_SWATCHES.map((sw) => (
+                      <button
+                        key={sw.accent}
+                        type="button"
+                        title={sw.name}
+                        onClick={() =>
+                          setTemplate({
+                            ...template,
+                            themeAccent: sw.accent,
+                            themeBgTop: sw.bg,
+                            themeTraitBg: sw.trait,
+                          })
+                        }
+                        className="h-5 w-5 rounded-full ring-1 ring-black/10 transition hover:scale-110"
+                        style={{ background: sw.accent }}
+                      />
+                    ))}
+                  </div>
                 </div>
                 <Field label="底部脚注">
                   <input
