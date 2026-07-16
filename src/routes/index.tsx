@@ -957,6 +957,7 @@ const Poster = forwardRef<
   { data: ReportResult; template: PosterTemplate; image?: string | null }
 >(function Poster({ data, template, image }, ref) {
   const { report, meta } = data;
+  const en = SECTION_EN[template.reportStyle ?? "observation"];
 
   return (
     <div
