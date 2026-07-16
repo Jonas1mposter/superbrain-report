@@ -11,10 +11,14 @@ import {
 import {
   DEFAULT_TEMPLATE,
   PRESETS,
+  REPORT_STYLE_OPTIONS,
+  SECTION_EN,
   deleteTemplateFor,
   loadStoredTemplates,
   saveTemplateFor,
+  templateForStyle,
   type PosterTemplate,
+  type ReportStyle,
   type SectionConfig,
   type SectionKey,
 } from "@/lib/template";
@@ -77,6 +81,7 @@ function Index() {
   const runBatch = useServerFn(generateBatchReports);
 
   const [mode, setMode] = useState<Mode>("single");
+  const [reportStyle, setReportStyle] = useState<ReportStyle>("observation");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ReportResult | null>(null);
@@ -154,13 +159,23 @@ function Index() {
     if (all[form.studentName]) setTemplate(all[form.studentName]);
   }, [form.studentName]);
 
+  function switchReportStyle(next: ReportStyle) {
+    if (next === reportStyle) return;
+    setReportStyle(next);
+    // Swap poster template to the matching preset so tags/labels align with the style.
+    setTemplate(templateForStyle(next));
+    // Clear old results so users don't see a mismatch between style and rendered content.
+    setResult(null);
+    setBatchResults(null);
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setResult(null);
     try {
-      const r = (await runSingle({ data: form })) as ReportResult;
+      const r = (await runSingle({ data: { ...form, reportStyle } })) as ReportResult;
       setResult(r);
     } catch (err) {
       setError(err instanceof Error ? err.message : "生成失败");
@@ -188,6 +203,7 @@ function Index() {
           narrative: batchForm.narrative,
           model: batchForm.model,
           studentHints: hints,
+          reportStyle,
         },
       })) as { results: ReportResult[] };
       setBatchResults(r.results);
@@ -377,10 +393,28 @@ function Index() {
               批量模式 · 一段流水账
             </button>
           </div>
+          <div className="ml-3 inline-flex rounded-lg border border-[oklch(0.9_0.02_80)] bg-white p-1 text-xs align-middle">
+            {REPORT_STYLE_OPTIONS.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => switchReportStyle(s.id)}
+                title={s.desc}
+                className={`rounded-md px-3 py-1.5 transition ${
+                  reportStyle === s.id
+                    ? "bg-[oklch(0.35_0.05_260)] text-white"
+                    : "text-[oklch(0.4_0.02_60)] hover:bg-[oklch(0.96_0.02_80)]"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
           <span className="ml-3 text-xs text-[oklch(0.5_0.02_60)]">
             {mode === "single"
               ? "为单个学员生成一份报告"
               : "写下今天的流水账，AI 自动按学员拆分并逐个生成"}
+            {" · "}
+            {REPORT_STYLE_OPTIONS.find((s) => s.id === reportStyle)?.desc}
           </span>
         </div>
       </header>
@@ -923,6 +957,7 @@ const Poster = forwardRef<
   { data: ReportResult; template: PosterTemplate; image?: string | null }
 >(function Poster({ data, template, image }, ref) {
   const { report, meta } = data;
+  const en = SECTION_EN[template.reportStyle ?? "observation"];
 
   return (
     <div
@@ -985,7 +1020,7 @@ const Poster = forwardRef<
 
       <div className="relative mt-5 space-y-4 sm:mt-6 sm:space-y-5">
         {template.sections.facts.enabled && (
-          <SectionCard tag={template.sections.facts.tag} en="FACTS">
+          <SectionCard tag={template.sections.facts.tag} en={en.facts}>
             <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
               {report.facts.points.map((p, i) => (
                 <li key={i}>{p}</li>
@@ -994,7 +1029,7 @@ const Poster = forwardRef<
           </SectionCard>
         )}
         {template.sections.thoughts.enabled && (
-          <SectionCard tag={template.sections.thoughts.tag} en="THOUGHTS">
+          <SectionCard tag={template.sections.thoughts.tag} en={en.thoughts}>
             <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
               {report.thoughts.points.map((p, i) => (
                 <li key={i}>{p}</li>
@@ -1003,7 +1038,7 @@ const Poster = forwardRef<
           </SectionCard>
         )}
         {template.sections.plans.enabled && (
-          <SectionCard tag={template.sections.plans.tag} en="PLANS">
+          <SectionCard tag={template.sections.plans.tag} en={en.plans}>
             <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
               {report.plans.steps.map((s, i) => (
                 <li key={i}>{s}</li>
@@ -1090,6 +1125,7 @@ function SectionCard({
 
 function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: string | null) {
   const { report, meta } = data;
+  const en = SECTION_EN[t.reportStyle ?? "observation"];
   const factsPoints = report.facts.points.map((p) => `<li>${esc(p)}</li>`).join("");
   const thoughtsPoints = report.thoughts.points.map((p) => `<li>${esc(p)}</li>`).join("");
   const plansSteps = report.plans.steps.map((s) => `<li>${esc(s)}</li>`).join("");
@@ -1174,9 +1210,9 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
   </div>
   ${imgHtml}
   <div class="sections">
-    ${section(t.sections.facts.tag, "FACTS", `<ul>${factsPoints}</ul>`, t.sections.facts.enabled)}
-    ${section(t.sections.thoughts.tag, "THOUGHTS", `<ul>${thoughtsPoints}</ul>`, t.sections.thoughts.enabled)}
-    ${section(t.sections.plans.tag, "PLANS", `<ul>${plansSteps}</ul>`, t.sections.plans.enabled)}
+    ${section(t.sections.facts.tag, en.facts, `<ul>${factsPoints}</ul>`, t.sections.facts.enabled)}
+    ${section(t.sections.thoughts.tag, en.thoughts, `<ul>${thoughtsPoints}</ul>`, t.sections.thoughts.enabled)}
+    ${section(t.sections.plans.tag, en.plans, `<ul>${plansSteps}</ul>`, t.sections.plans.enabled)}
   </div>
   ${t.showEncouragement ? `<div class="trait"><div class="l">核心特质 / TRAIT</div><div class="q">"${esc(report.encouragement)}"</div></div>` : ""}
   <div class="coach"><div class="l">今日观察主线</div><div class="q">"${esc(report.facts.title)}"</div></div>
