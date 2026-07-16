@@ -969,6 +969,49 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+function ColorField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-xs font-medium text-[oklch(0.4_0.02_60)]">{label}</span>
+      <div className="flex items-center gap-1.5 rounded-[10px] border border-[oklch(0.9_0.02_80)] bg-white px-1.5 py-1">
+        <input
+          type="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-7 w-7 shrink-0 cursor-pointer rounded-md border-0 bg-transparent p-0"
+          aria-label={label}
+        />
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full bg-transparent text-xs outline-none"
+          spellCheck={false}
+        />
+      </div>
+    </label>
+  );
+}
+
+const ACCENT_SWATCHES: { name: string; accent: string; bg: string; trait: string }[] = [
+  { name: "海蓝", accent: "#3b82f6", bg: "#eaf2fb", trait: "#1f2a3d" },
+  { name: "暖橙", accent: "#e07a3c", bg: "#fdf1e6", trait: "#3a2417" },
+  { name: "薄荷", accent: "#14b8a6", bg: "#e6f7f4", trait: "#123c37" },
+  { name: "樱粉", accent: "#e75480", bg: "#fce7ef", trait: "#3a1a26" },
+  { name: "紫罗", accent: "#8b5cf6", bg: "#f0eaff", trait: "#2a1f4a" },
+  { name: "琥珀", accent: "#d97706", bg: "#fef3c7", trait: "#3d2a10" },
+  { name: "松绿", accent: "#16a34a", bg: "#e6f5eb", trait: "#153a24" },
+  { name: "石墨", accent: "#475569", bg: "#eef1f5", trait: "#1e293b" },
+];
+
 const Poster = forwardRef<
   HTMLDivElement,
   { data: ReportResult; template: PosterTemplate; image?: string | null }
