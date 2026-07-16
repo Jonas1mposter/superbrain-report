@@ -393,10 +393,28 @@ function Index() {
               批量模式 · 一段流水账
             </button>
           </div>
+          <div className="ml-3 inline-flex rounded-lg border border-[oklch(0.9_0.02_80)] bg-white p-1 text-xs align-middle">
+            {REPORT_STYLE_OPTIONS.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => switchReportStyle(s.id)}
+                title={s.desc}
+                className={`rounded-md px-3 py-1.5 transition ${
+                  reportStyle === s.id
+                    ? "bg-[oklch(0.35_0.05_260)] text-white"
+                    : "text-[oklch(0.4_0.02_60)] hover:bg-[oklch(0.96_0.02_80)]"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
           <span className="ml-3 text-xs text-[oklch(0.5_0.02_60)]">
             {mode === "single"
               ? "为单个学员生成一份报告"
               : "写下今天的流水账，AI 自动按学员拆分并逐个生成"}
+            {" · "}
+            {REPORT_STYLE_OPTIONS.find((s) => s.id === reportStyle)?.desc}
           </span>
         </div>
       </header>
