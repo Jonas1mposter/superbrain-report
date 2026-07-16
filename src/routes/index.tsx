@@ -159,13 +159,23 @@ function Index() {
     if (all[form.studentName]) setTemplate(all[form.studentName]);
   }, [form.studentName]);
 
+  function switchReportStyle(next: ReportStyle) {
+    if (next === reportStyle) return;
+    setReportStyle(next);
+    // Swap poster template to the matching preset so tags/labels align with the style.
+    setTemplate(templateForStyle(next));
+    // Clear old results so users don't see a mismatch between style and rendered content.
+    setResult(null);
+    setBatchResults(null);
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setResult(null);
     try {
-      const r = (await runSingle({ data: form })) as ReportResult;
+      const r = (await runSingle({ data: { ...form, reportStyle } })) as ReportResult;
       setResult(r);
     } catch (err) {
       setError(err instanceof Error ? err.message : "生成失败");
@@ -193,6 +203,7 @@ function Index() {
           narrative: batchForm.narrative,
           model: batchForm.model,
           studentHints: hints,
+          reportStyle,
         },
       })) as { results: ReportResult[] };
       setBatchResults(r.results);
