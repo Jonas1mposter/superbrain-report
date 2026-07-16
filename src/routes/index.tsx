@@ -11,10 +11,14 @@ import {
 import {
   DEFAULT_TEMPLATE,
   PRESETS,
+  REPORT_STYLE_OPTIONS,
+  SECTION_EN,
   deleteTemplateFor,
   loadStoredTemplates,
   saveTemplateFor,
+  templateForStyle,
   type PosterTemplate,
+  type ReportStyle,
   type SectionConfig,
   type SectionKey,
 } from "@/lib/template";
