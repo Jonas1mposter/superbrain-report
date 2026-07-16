@@ -958,13 +958,18 @@ const Poster = forwardRef<
 >(function Poster({ data, template, image }, ref) {
   const { report, meta } = data;
   const en = SECTION_EN[template.reportStyle ?? "observation"];
+  const accent = template.themeAccent || "#3b82f6";
+  const bgTop = template.themeBgTop || "#eaf2fb";
+  const traitBg = template.themeTraitBg || "#1f2a3d";
+  const kicker = template.reportStyle === "highlight" ? "Highlight Report" : "Observation Report";
+  const title = template.reportStyle === "highlight" ? "今日高光反馈" : "学员观察报告";
 
   return (
     <div
       ref={ref}
       className="relative overflow-hidden px-6 py-9 sm:px-11 sm:py-14"
       style={{
-        background: "linear-gradient(180deg, #eaf2fb 0%, #f3f7fc 35%, #ffffff 100%)",
+        background: `linear-gradient(180deg, ${bgTop} 0%, color-mix(in oklab, ${bgTop} 45%, #ffffff) 35%, #ffffff 100%)`,
         color: "#0f1f3a",
         fontFamily:
           '-apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif',
@@ -973,18 +978,23 @@ const Poster = forwardRef<
       <div
         aria-hidden
         className="absolute left-0 right-0 top-0 h-[5px]"
-        style={{ background: "linear-gradient(90deg,#3b82f6 0%,#93c5fd 60%,transparent 100%)" }}
+        style={{
+          background: `linear-gradient(90deg, ${accent} 0%, color-mix(in oklab, ${accent} 55%, #ffffff) 60%, transparent 100%)`,
+        }}
       />
       <div
         aria-hidden
         className="pointer-events-none absolute right-5 top-8 h-24 w-24 rounded-[20px] sm:right-8 sm:top-10 sm:h-40 sm:w-40 sm:rounded-[28px]"
-        style={{ background: "rgba(186,214,242,0.35)" }}
+        style={{ background: `color-mix(in oklab, ${accent} 25%, transparent)` }}
       />
 
       <div className="relative">
-        <div className="flex items-center gap-3 text-[12px] font-semibold uppercase tracking-[0.24em] text-[#3b82f6] sm:text-[13px] sm:tracking-[0.28em]">
-          <span className="inline-block h-px w-6 bg-[#3b82f6] sm:w-8" />
-          Observation Report
+        <div
+          className="flex items-center gap-3 text-[12px] font-semibold uppercase tracking-[0.24em] sm:text-[13px] sm:tracking-[0.28em]"
+          style={{ color: accent }}
+        >
+          <span className="inline-block h-px w-6 sm:w-8" style={{ background: accent }} />
+          {kicker}
         </div>
         <h1
           className="mt-4 text-[30px] font-black leading-[1.15] tracking-tight text-[#0b1b35] sm:mt-5 sm:text-[48px] sm:leading-[1.1]"
@@ -992,14 +1002,23 @@ const Poster = forwardRef<
         >
           AI for Good 夏令营
           <br />
-          <span className="text-[#3b82f6]">学员观察报告</span>
+          <span style={{ color: accent }}>{title}</span>
         </h1>
-        <div className="mt-4 inline-flex items-center rounded-full bg-[#3b82f6] px-4 py-1 text-[15px] font-semibold text-white shadow-[0_6px_16px_-6px_rgba(59,130,246,0.6)] sm:mt-5 sm:px-5 sm:py-1.5 sm:text-[17px]">
+        <div
+          className="mt-4 inline-flex items-center rounded-full px-4 py-1 text-[15px] font-semibold text-white sm:mt-5 sm:px-5 sm:py-1.5 sm:text-[17px]"
+          style={{
+            background: accent,
+            boxShadow: `0 6px 16px -6px color-mix(in oklab, ${accent} 60%, transparent)`,
+          }}
+        >
           Day {meta.day}
         </div>
       </div>
 
-      <div className="relative mt-7 rounded-2xl bg-white/70 px-5 py-5 backdrop-blur-sm ring-1 ring-[#dbe6f4] sm:mt-10 sm:px-7 sm:py-6">
+      <div
+        className="relative mt-7 rounded-2xl bg-white/70 px-5 py-5 backdrop-blur-sm ring-1 sm:mt-10 sm:px-7 sm:py-6"
+        style={{ ["--tw-ring-color" as string]: `color-mix(in oklab, ${accent} 22%, #ffffff)` }}
+      >
         <div className="flex items-start justify-between gap-4 sm:gap-6">
           <div className="min-w-0">
             <div className="text-[12px] font-medium tracking-[0.32em] text-[#94a3b8] sm:text-[14px] sm:tracking-[0.4em]">学　员</div>
@@ -1007,30 +1026,37 @@ const Poster = forwardRef<
           </div>
           <div className="shrink-0 text-right">
             <div className="text-[12px] font-medium tracking-[0.32em] text-[#94a3b8] sm:text-[14px] sm:tracking-[0.4em]">今 日 状 态</div>
-            <div className="mt-2 text-[15px] font-semibold text-[#3b82f6] sm:text-[17px]">↑ 持续观察中</div>
+            <div className="mt-2 text-[15px] font-semibold sm:text-[17px]" style={{ color: accent }}>
+              ↑ 持续观察中
+            </div>
           </div>
         </div>
       </div>
 
       {image && (
-        <figure className="relative mt-5 overflow-hidden rounded-2xl ring-1 ring-[#dbe6f4] bg-white sm:mt-6">
+        <figure
+          className="relative mt-5 overflow-hidden rounded-2xl ring-1 bg-white sm:mt-6"
+          style={{ ["--tw-ring-color" as string]: `color-mix(in oklab, ${accent} 22%, #ffffff)` }}
+        >
           <img src={image} alt="" className="block max-h-[260px] w-full object-cover sm:max-h-[360px]" />
         </figure>
       )}
 
       <div className="relative mt-5 space-y-4 sm:mt-6 sm:space-y-5">
         {template.sections.facts.enabled && (
-          <SectionCard tag={template.sections.facts.tag} en={en.facts}>
-            <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
+          <SectionCard tag={template.sections.facts.tag} en={en.facts} accent={accent}>
+            <ul className="ml-4 list-disc space-y-1.5" style={{ ["--tw-prose-bullets" as string]: accent }}>
               {report.facts.points.map((p, i) => (
-                <li key={i}>{p}</li>
+                <li key={i} style={{ ["::marker" as string]: accent } as React.CSSProperties}>
+                  {p}
+                </li>
               ))}
             </ul>
           </SectionCard>
         )}
         {template.sections.thoughts.enabled && (
-          <SectionCard tag={template.sections.thoughts.tag} en={en.thoughts}>
-            <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
+          <SectionCard tag={template.sections.thoughts.tag} en={en.thoughts} accent={accent}>
+            <ul className="ml-4 list-disc space-y-1.5">
               {report.thoughts.points.map((p, i) => (
                 <li key={i}>{p}</li>
               ))}
@@ -1038,8 +1064,8 @@ const Poster = forwardRef<
           </SectionCard>
         )}
         {template.sections.plans.enabled && (
-          <SectionCard tag={template.sections.plans.tag} en={en.plans}>
-            <ul className="ml-4 list-disc space-y-1.5 marker:text-[#3b82f6]">
+          <SectionCard tag={template.sections.plans.tag} en={en.plans} accent={accent}>
+            <ul className="ml-4 list-disc space-y-1.5">
               {report.plans.steps.map((s, i) => (
                 <li key={i}>{s}</li>
               ))}
@@ -1049,8 +1075,14 @@ const Poster = forwardRef<
       </div>
 
       {template.showEncouragement && (
-        <div className="relative mt-6 rounded-2xl bg-[#1f2a3d] px-6 py-6 text-center sm:mt-7 sm:px-8 sm:py-7">
-          <div className="text-[13px] font-semibold tracking-[0.28em] text-[#7eb6ff] sm:text-[14px] sm:tracking-[0.32em]">
+        <div
+          className="relative mt-6 rounded-2xl px-6 py-6 text-center sm:mt-7 sm:px-8 sm:py-7"
+          style={{ background: traitBg }}
+        >
+          <div
+            className="text-[13px] font-semibold tracking-[0.28em] sm:text-[14px] sm:tracking-[0.32em]"
+            style={{ color: `color-mix(in oklab, ${accent} 55%, #ffffff)` }}
+          >
             核心特质 / TRAIT
           </div>
           <div className="mt-3 text-[17px] italic leading-relaxed text-white sm:text-[20px]">
@@ -1060,7 +1092,10 @@ const Poster = forwardRef<
       )}
 
       <div className="relative mt-7 text-center sm:mt-9">
-        <div className="text-[13px] font-semibold tracking-[0.28em] text-[#3b82f6] sm:text-[14px] sm:tracking-[0.32em]">
+        <div
+          className="text-[13px] font-semibold tracking-[0.28em] sm:text-[14px] sm:tracking-[0.32em]"
+          style={{ color: accent }}
+        >
           今日观察主线
         </div>
         <div className="mt-2 text-[17px] font-bold text-[#0b1b35] sm:text-[20px]">
