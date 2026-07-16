@@ -313,6 +313,7 @@ ${data.narrative}`;
       mentor: data.mentor,
       observations,
       model: data.model,
+      reportStyle: data.reportStyle,
     });
     results.push(single);
   }
