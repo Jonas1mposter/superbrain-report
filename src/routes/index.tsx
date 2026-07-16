@@ -81,6 +81,7 @@ function Index() {
   const runBatch = useServerFn(generateBatchReports);
 
   const [mode, setMode] = useState<Mode>("single");
+  const [reportStyle, setReportStyle] = useState<ReportStyle>("observation");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ReportResult | null>(null);
