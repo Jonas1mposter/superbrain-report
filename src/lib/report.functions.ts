@@ -17,6 +17,7 @@ const InputSchema = z.object({
   observations: z.string().min(1),
   mentor: z.string().optional().default(""),
   model: z.enum(["kimi", "deepseek"]).optional().default("kimi"),
+  reportStyle: z.enum(["observation", "highlight"]).optional().default("observation"),
 });
 
 const BatchInputSchema = z.object({
@@ -27,6 +28,7 @@ const BatchInputSchema = z.object({
   narrative: z.string().min(1),
   studentHints: z.array(z.string()).optional().default([]),
   model: z.enum(["kimi", "deepseek"]).optional().default("kimi"),
+  reportStyle: z.enum(["observation", "highlight"]).optional().default("observation"),
 });
 
 export type DailyReport = {
