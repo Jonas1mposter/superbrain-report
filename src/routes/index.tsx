@@ -1170,6 +1170,11 @@ function SectionCard({
 function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: string | null) {
   const { report, meta } = data;
   const en = SECTION_EN[t.reportStyle ?? "observation"];
+  const accent = t.themeAccent || "#3b82f6";
+  const bgTop = t.themeBgTop || "#eaf2fb";
+  const traitBg = t.themeTraitBg || "#1f2a3d";
+  const kicker = t.reportStyle === "highlight" ? "Highlight Report" : "Observation Report";
+  const title = t.reportStyle === "highlight" ? "今日高光反馈" : "学员观察报告";
   const factsPoints = report.facts.points.map((p) => `<li>${esc(p)}</li>`).join("");
   const thoughtsPoints = report.thoughts.points.map((p) => `<li>${esc(p)}</li>`).join("");
   const plansSteps = report.plans.steps.map((s) => `<li>${esc(s)}</li>`).join("");
@@ -1184,40 +1189,42 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
     : "";
 
   return `<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"/>
-<title>${esc(meta.studentName)} · Day ${esc(meta.day)} 观察报告</title>
+<title>${esc(meta.studentName)} · Day ${esc(meta.day)} ${title}</title>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <style>
+  :root{--accent:${accent};--bgtop:${bgTop};--trait:${traitBg}}
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;background:#eef3fa;padding:24px 12px;color:#0f1f3a}
-  .card-root{position:relative;max-width:640px;margin:0 auto;background:linear-gradient(180deg,#eaf2fb 0%,#f3f7fc 35%,#ffffff 100%);padding:48px 36px 40px;overflow:hidden;border-radius:4px}
-  .topbar{position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,#3b82f6 0%,#93c5fd 60%,transparent 100%)}
-  .deco{position:absolute;right:24px;top:36px;width:140px;height:140px;border-radius:24px;background:rgba(186,214,242,.35)}
-  .kicker{position:relative;font-size:13px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:#3b82f6;display:flex;align-items:center;gap:10px}
-  .kicker::before{content:"";display:inline-block;width:30px;height:1px;background:#3b82f6}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;background:color-mix(in oklab, var(--bgtop) 60%, #ffffff);padding:24px 12px;color:#0f1f3a}
+  .card-root{position:relative;max-width:640px;margin:0 auto;background:linear-gradient(180deg,var(--bgtop) 0%,color-mix(in oklab, var(--bgtop) 45%, #ffffff) 35%,#ffffff 100%);padding:48px 36px 40px;overflow:hidden;border-radius:4px}
+  .topbar{position:absolute;left:0;right:0;top:0;height:5px;background:linear-gradient(90deg,var(--accent) 0%,color-mix(in oklab, var(--accent) 55%, #ffffff) 60%,transparent 100%)}
+  .deco{position:absolute;right:24px;top:36px;width:140px;height:140px;border-radius:24px;background:color-mix(in oklab, var(--accent) 25%, transparent)}
+  .kicker{position:relative;font-size:13px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:10px}
+  .kicker::before{content:"";display:inline-block;width:30px;height:1px;background:var(--accent)}
   h1{position:relative;font-size:40px;font-weight:900;margin:18px 0 18px;letter-spacing:-.01em;line-height:1.1;color:#0b1b35}
-  h1 .blue{color:#3b82f6}
-  .day{position:relative;display:inline-block;background:#3b82f6;color:#fff;border-radius:9999px;padding:6px 18px;font-size:16px;font-weight:600;box-shadow:0 6px 16px -6px rgba(59,130,246,.6)}
-  .student{position:relative;margin-top:32px;background:rgba(255,255,255,.7);border:1px solid #dbe6f4;border-radius:18px;padding:22px 26px;display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
+  h1 .blue{color:var(--accent)}
+  .day{position:relative;display:inline-block;background:var(--accent);color:#fff;border-radius:9999px;padding:6px 18px;font-size:16px;font-weight:600;box-shadow:0 6px 16px -6px color-mix(in oklab, var(--accent) 60%, transparent)}
+  .student{position:relative;margin-top:32px;background:rgba(255,255,255,.7);border:1px solid color-mix(in oklab, var(--accent) 22%, #ffffff);border-radius:18px;padding:22px 26px;display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
   .student .lbl{font-size:13px;letter-spacing:.4em;color:#94a3b8;font-weight:500}
   .student .name{font-size:32px;font-weight:700;margin-top:8px;color:#0b1b35}
-  .student .state{font-size:16px;font-weight:600;color:#3b82f6;margin-top:8px}
-  .figure{position:relative;margin:20px 0 0;border:1px solid #dbe6f4;background:#fff;border-radius:18px;overflow:hidden}
+  .student .state{font-size:16px;font-weight:600;color:var(--accent);margin-top:8px}
+  .figure{position:relative;margin:20px 0 0;border:1px solid color-mix(in oklab, var(--accent) 22%, #ffffff);background:#fff;border-radius:18px;overflow:hidden}
   .figure img{display:block;width:100%;max-height:360px;object-fit:cover}
   .sections{position:relative;margin-top:22px;display:flex;flex-direction:column;gap:18px}
-  .card{background:#fff;border:1px solid #e4ecf6;border-radius:18px;padding:20px 22px;box-shadow:0 2px 10px -4px rgba(59,130,246,.08)}
+  .card{background:#fff;border:1px solid #e4ecf6;border-radius:18px;padding:20px 22px;box-shadow:0 2px 10px -4px color-mix(in oklab, var(--accent) 20%, transparent)}
   .cardhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-  .ico{display:inline-block;width:24px;height:24px;border-radius:7px;background:#eaf2fb;position:relative}
-  .ico::after{content:"";position:absolute;left:8px;top:8px;width:8px;height:8px;border-radius:2px;background:#3b82f6}
-  .tag{font-size:16px;font-weight:600;color:#3b82f6}
+  .ico{display:inline-block;width:24px;height:24px;border-radius:7px;background:color-mix(in oklab, var(--accent) 15%, #ffffff);position:relative}
+  .ico::after{content:"";position:absolute;left:8px;top:8px;width:8px;height:8px;border-radius:2px;background:var(--accent)}
+  .tag{font-size:16px;font-weight:600;color:var(--accent)}
   .tag em{font-style:normal;color:#94a3b8;font-weight:500}
   .cardbody{font-size:17px;line-height:1.75;color:#334155}
   .cardbody ul{margin:0;padding-left:18px}
   .cardbody ul li{margin:4px 0}
-  .trait{position:relative;margin-top:24px;background:#1f2a3d;border-radius:18px;padding:24px 28px;text-align:center}
-  .trait .l{font-size:14px;font-weight:600;letter-spacing:.32em;color:#7eb6ff}
+  .cardbody ul li::marker{color:var(--accent)}
+  .trait{position:relative;margin-top:24px;background:var(--trait);border-radius:18px;padding:24px 28px;text-align:center}
+  .trait .l{font-size:14px;font-weight:600;letter-spacing:.32em;color:color-mix(in oklab, var(--accent) 55%, #ffffff)}
   .trait .q{margin-top:10px;font-size:19px;font-style:italic;color:#fff;line-height:1.6}
   .coach{position:relative;margin-top:32px;text-align:center}
-  .coach .l{font-size:14px;font-weight:600;letter-spacing:.32em;color:#3b82f6}
+  .coach .l{font-size:14px;font-weight:600;letter-spacing:.32em;color:var(--accent)}
   .coach .q{margin-top:6px;font-size:19px;font-weight:700;color:#0b1b35}
   .meta{position:relative;margin-top:32px;display:flex;justify-content:center;gap:32px;font-size:15px;color:#64748b}
   .foot{position:relative;margin-top:20px;text-align:center;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#94a3b8}
@@ -1245,8 +1252,8 @@ function buildStandaloneHtml(data: ReportResult, t: PosterTemplate, image?: stri
 <div class="card-root">
   <div class="topbar"></div>
   <div class="deco"></div>
-  <div class="kicker">Observation Report</div>
-  <h1>AI for Good 夏令营<br/><span class="blue">学员观察报告</span></h1>
+  <div class="kicker">${kicker}</div>
+  <h1>AI for Good 夏令营<br/><span class="blue">${esc(title)}</span></h1>
   <div class="day">Day ${esc(meta.day)}</div>
   <div class="student">
     <div><div class="lbl">学　员</div><div class="name">${esc(meta.studentName)}</div></div>
