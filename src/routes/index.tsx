@@ -1197,8 +1197,8 @@ const Poster = forwardRef<HTMLDivElement, PosterProps>(function Poster(
           <SectionCard tag={template.sections.facts.tag} en={en.facts} accent={accent}>
             <ul className="ml-4 list-disc space-y-1.5" style={{ ["--tw-prose-bullets" as string]: accent }}>
               {report.facts.points.map((p, i) => (
-                <li key={i} style={{ ["::marker" as string]: accent } as React.CSSProperties}>
-                  {p}
+                <li key={`f-${i}`} style={{ ["::marker" as string]: accent } as React.CSSProperties}>
+                  <Editable editable={editable} value={p} onChange={(v) => updatePoint("facts", i, v)} />
                 </li>
               ))}
             </ul>
@@ -1208,7 +1208,9 @@ const Poster = forwardRef<HTMLDivElement, PosterProps>(function Poster(
           <SectionCard tag={template.sections.thoughts.tag} en={en.thoughts} accent={accent}>
             <ul className="ml-4 list-disc space-y-1.5">
               {report.thoughts.points.map((p, i) => (
-                <li key={i}>{p}</li>
+                <li key={`t-${i}`}>
+                  <Editable editable={editable} value={p} onChange={(v) => updatePoint("thoughts", i, v)} />
+                </li>
               ))}
             </ul>
           </SectionCard>
@@ -1217,7 +1219,9 @@ const Poster = forwardRef<HTMLDivElement, PosterProps>(function Poster(
           <SectionCard tag={template.sections.plans.tag} en={en.plans} accent={accent}>
             <ul className="ml-4 list-disc space-y-1.5">
               {report.plans.steps.map((s, i) => (
-                <li key={i}>{s}</li>
+                <li key={`p-${i}`}>
+                  <Editable editable={editable} value={s} onChange={(v) => updateStep(i, v)} />
+                </li>
               ))}
             </ul>
           </SectionCard>
