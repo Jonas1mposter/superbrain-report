@@ -1166,7 +1166,13 @@ const Poster = forwardRef<HTMLDivElement, PosterProps>(function Poster(
         <div className="flex items-start justify-between gap-4 sm:gap-6">
           <div className="min-w-0">
             <div className="text-[12px] font-medium tracking-[0.32em] text-[#94a3b8] sm:text-[14px] sm:tracking-[0.4em]">学　员</div>
-            <div className="mt-2 truncate text-[26px] font-bold text-[#0b1b35] sm:text-[34px]">{meta.studentName}</div>
+            <div className="mt-2 truncate text-[26px] font-bold text-[#0b1b35] sm:text-[34px]">
+              <Editable
+                editable={editable}
+                value={meta.studentName}
+                onChange={(v) => onMetaChange?.({ studentName: v })}
+              />
+            </div>
           </div>
           <div className="shrink-0 text-right">
             <div className="text-[12px] font-medium tracking-[0.32em] text-[#94a3b8] sm:text-[14px] sm:tracking-[0.4em]">今 日 状 态</div>
