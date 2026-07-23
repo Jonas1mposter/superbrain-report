@@ -113,6 +113,30 @@ function Index() {
   const [showEditor, setShowEditor] = useState(false);
   const [savedNames, setSavedNames] = useState<string[]>([]);
   const [image, setImage] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+
+  function updateResultReport(next: DailyReport) {
+    setResult((r) => (r ? { ...r, report: next } : r));
+  }
+  function updateResultMeta(patch: Partial<ReportResult["meta"]>) {
+    setResult((r) => (r ? { ...r, meta: { ...r.meta, ...patch } } : r));
+  }
+  function updateBatchReport(i: number, next: DailyReport) {
+    setBatchResults((list) => {
+      if (!list) return list;
+      const copy = [...list];
+      copy[i] = { ...copy[i], report: next };
+      return copy;
+    });
+  }
+  function updateBatchMeta(i: number, patch: Partial<ReportResult["meta"]>) {
+    setBatchResults((list) => {
+      if (!list) return list;
+      const copy = [...list];
+      copy[i] = { ...copy[i], meta: { ...copy[i].meta, ...patch } };
+      return copy;
+    });
+  }
 
   function onPickImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -238,6 +262,10 @@ function Index() {
     node.style.width = `${EXPORT_WIDTH}px`;
     node.style.maxWidth = `${EXPORT_WIDTH}px`;
     node.style.minWidth = `${EXPORT_WIDTH}px`;
+    const wasEditing = editing;
+    if (wasEditing) setEditing(false);
+    // Give React a frame to strip contentEditable outlines before capture.
+    await new Promise((r) => requestAnimationFrame(() => r(null)));
     try {
       const imgs = Array.from(node.querySelectorAll("img"));
       await Promise.all(
@@ -862,7 +890,18 @@ function Index() {
               {mode === "single" ? "海报预览" : `海报预览${batchResults ? `（${batchResults.length} 位学员）` : ""}`}
             </h2>
             {mode === "single" && result && (
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setEditing((v) => !v)}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                    editing
+                      ? "bg-[oklch(0.55_0.18_30)] text-white"
+                      : "border border-[oklch(0.85_0.03_60)] bg-white hover:bg-[oklch(0.96_0.02_80)]"
+                  }`}
+                  title="点击海报里的文字直接改，改完点空白处保存"
+                >
+                  {editing ? "✅ 完成编辑" : "✏️ 编辑文字"}
+                </button>
                 <button
                   onClick={downloadImage}
                   disabled={exporting}
@@ -879,19 +918,39 @@ function Index() {
               </div>
             )}
             {mode === "batch" && batchResults && batchResults.length > 0 && (
-              <button
-                onClick={downloadAllBatch}
-                disabled={exporting}
-                className="rounded-lg bg-[oklch(0.55_0.18_30)] px-3 py-1.5 text-xs font-medium text-white hover:bg-[oklch(0.5_0.18_30)] disabled:opacity-60"
-              >
-                {exporting ? "导出中…" : "📷 批量导出图片"}
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setEditing((v) => !v)}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                    editing
+                      ? "bg-[oklch(0.55_0.18_30)] text-white"
+                      : "border border-[oklch(0.85_0.03_60)] bg-white hover:bg-[oklch(0.96_0.02_80)]"
+                  }`}
+                >
+                  {editing ? "✅ 完成编辑" : "✏️ 编辑文字"}
+                </button>
+                <button
+                  onClick={downloadAllBatch}
+                  disabled={exporting}
+                  className="rounded-lg bg-[oklch(0.55_0.18_30)] px-3 py-1.5 text-xs font-medium text-white hover:bg-[oklch(0.5_0.18_30)] disabled:opacity-60"
+                >
+                  {exporting ? "导出中…" : "📷 批量导出图片"}
+                </button>
+              </div>
             )}
           </div>
 
           {mode === "single" ? (
             result ? (
-              <Poster ref={posterRef} data={result} template={template} image={image} />
+              <Poster
+                ref={posterRef}
+                data={result}
+                template={template}
+                image={image}
+                editable={editing}
+                onReportChange={updateResultReport}
+                onMetaChange={updateResultMeta}
+              />
             ) : (
               <div className="flex h-[520px] items-center justify-center rounded-2xl border border-dashed border-[oklch(0.85_0.03_60)] bg-white/60 text-sm text-[oklch(0.55_0.02_60)]">
                 填写左侧表单，生成的海报会出现在这里
@@ -920,6 +979,9 @@ function Index() {
                     data={r}
                     template={template}
                     image={null}
+                    editable={editing}
+                    onReportChange={(next) => updateBatchReport(i, next)}
+                    onMetaChange={(patch) => updateBatchMeta(i, patch)}
                   />
                 </div>
               ))}
@@ -1012,10 +1074,19 @@ const ACCENT_SWATCHES: { name: string; accent: string; bg: string; trait: string
   { name: "石墨", accent: "#475569", bg: "#eef1f5", trait: "#1e293b" },
 ];
 
-const Poster = forwardRef<
-  HTMLDivElement,
-  { data: ReportResult; template: PosterTemplate; image?: string | null }
->(function Poster({ data, template, image }, ref) {
+type PosterProps = {
+  data: ReportResult;
+  template: PosterTemplate;
+  image?: string | null;
+  editable?: boolean;
+  onReportChange?: (next: DailyReport) => void;
+  onMetaChange?: (patch: Partial<ReportResult["meta"]>) => void;
+};
+
+const Poster = forwardRef<HTMLDivElement, PosterProps>(function Poster(
+  { data, template, image, editable = false, onReportChange, onMetaChange },
+  ref,
+) {
   const { report, meta } = data;
   const en = SECTION_EN[template.reportStyle ?? "observation"];
   const accent = template.themeAccent || "#3b82f6";
@@ -1023,6 +1094,19 @@ const Poster = forwardRef<
   const traitBg = template.themeTraitBg || "#1f2a3d";
   const kicker = template.reportStyle === "highlight" ? "Highlight Report" : "Observation Report";
   const title = template.reportStyle === "highlight" ? "今日高光反馈" : "学员观察报告";
+
+  const updatePoint = (key: "facts" | "thoughts", i: number, v: string) => {
+    if (!onReportChange) return;
+    const arr = [...report[key].points];
+    arr[i] = v;
+    onReportChange({ ...report, [key]: { ...report[key], points: arr } });
+  };
+  const updateStep = (i: number, v: string) => {
+    if (!onReportChange) return;
+    const arr = [...report.plans.steps];
+    arr[i] = v;
+    onReportChange({ ...report, plans: { ...report.plans, steps: arr } });
+  };
 
   return (
     <div
@@ -1082,7 +1166,13 @@ const Poster = forwardRef<
         <div className="flex items-start justify-between gap-4 sm:gap-6">
           <div className="min-w-0">
             <div className="text-[12px] font-medium tracking-[0.32em] text-[#94a3b8] sm:text-[14px] sm:tracking-[0.4em]">学　员</div>
-            <div className="mt-2 truncate text-[26px] font-bold text-[#0b1b35] sm:text-[34px]">{meta.studentName}</div>
+            <div className="mt-2 truncate text-[26px] font-bold text-[#0b1b35] sm:text-[34px]">
+              <Editable
+                editable={editable}
+                value={meta.studentName}
+                onChange={(v) => onMetaChange?.({ studentName: v })}
+              />
+            </div>
           </div>
           <div className="shrink-0 text-right">
             <div className="text-[12px] font-medium tracking-[0.32em] text-[#94a3b8] sm:text-[14px] sm:tracking-[0.4em]">今 日 状 态</div>
@@ -1107,8 +1197,8 @@ const Poster = forwardRef<
           <SectionCard tag={template.sections.facts.tag} en={en.facts} accent={accent}>
             <ul className="ml-4 list-disc space-y-1.5" style={{ ["--tw-prose-bullets" as string]: accent }}>
               {report.facts.points.map((p, i) => (
-                <li key={i} style={{ ["::marker" as string]: accent } as React.CSSProperties}>
-                  {p}
+                <li key={`f-${i}`} style={{ ["::marker" as string]: accent } as React.CSSProperties}>
+                  <Editable editable={editable} value={p} onChange={(v) => updatePoint("facts", i, v)} />
                 </li>
               ))}
             </ul>
@@ -1118,7 +1208,9 @@ const Poster = forwardRef<
           <SectionCard tag={template.sections.thoughts.tag} en={en.thoughts} accent={accent}>
             <ul className="ml-4 list-disc space-y-1.5">
               {report.thoughts.points.map((p, i) => (
-                <li key={i}>{p}</li>
+                <li key={`t-${i}`}>
+                  <Editable editable={editable} value={p} onChange={(v) => updatePoint("thoughts", i, v)} />
+                </li>
               ))}
             </ul>
           </SectionCard>
@@ -1127,7 +1219,9 @@ const Poster = forwardRef<
           <SectionCard tag={template.sections.plans.tag} en={en.plans} accent={accent}>
             <ul className="ml-4 list-disc space-y-1.5">
               {report.plans.steps.map((s, i) => (
-                <li key={i}>{s}</li>
+                <li key={`p-${i}`}>
+                  <Editable editable={editable} value={s} onChange={(v) => updateStep(i, v)} />
+                </li>
               ))}
             </ul>
           </SectionCard>
@@ -1146,7 +1240,11 @@ const Poster = forwardRef<
             核心特质 / TRAIT
           </div>
           <div className="mt-3 text-[17px] italic leading-relaxed text-white sm:text-[20px]">
-            "{report.encouragement}"
+            "<Editable
+              editable={editable}
+              value={report.encouragement}
+              onChange={(v) => onReportChange?.({ ...report, encouragement: v })}
+            />"
           </div>
         </div>
       )}
@@ -1159,7 +1257,11 @@ const Poster = forwardRef<
           今日观察主线
         </div>
         <div className="mt-2 text-[17px] font-bold text-[#0b1b35] sm:text-[20px]">
-          "{report.facts.title}"
+          "<Editable
+            editable={editable}
+            value={report.facts.title}
+            onChange={(v) => onReportChange?.({ ...report, facts: { ...report.facts, title: v } })}
+          />"
         </div>
       </div>
 
@@ -1184,6 +1286,40 @@ const Poster = forwardRef<
     </div>
   );
 });
+
+function Editable({
+  editable,
+  value,
+  onChange,
+}: {
+  editable: boolean;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  if (!editable) return <>{value}</>;
+  return (
+    <span
+      contentEditable
+      suppressContentEditableWarning
+      spellCheck={false}
+      onBlur={(e) => {
+        const v = (e.currentTarget.textContent || "").trim();
+        if (v && v !== value) onChange(v);
+        else if (!v) e.currentTarget.textContent = value;
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          (e.currentTarget as HTMLElement).blur();
+        }
+      }}
+      className="rounded px-0.5"
+      style={{ cursor: "text", outline: "1px dashed rgba(148,163,184,0.7)", outlineOffset: "2px" }}
+    >
+      {value}
+    </span>
+  );
+}
 
 function formatDateCn(d: string) {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d);
