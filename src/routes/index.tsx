@@ -113,6 +113,30 @@ function Index() {
   const [showEditor, setShowEditor] = useState(false);
   const [savedNames, setSavedNames] = useState<string[]>([]);
   const [image, setImage] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+
+  function updateResultReport(next: DailyReport) {
+    setResult((r) => (r ? { ...r, report: next } : r));
+  }
+  function updateResultMeta(patch: Partial<ReportResult["meta"]>) {
+    setResult((r) => (r ? { ...r, meta: { ...r.meta, ...patch } } : r));
+  }
+  function updateBatchReport(i: number, next: DailyReport) {
+    setBatchResults((list) => {
+      if (!list) return list;
+      const copy = [...list];
+      copy[i] = { ...copy[i], report: next };
+      return copy;
+    });
+  }
+  function updateBatchMeta(i: number, patch: Partial<ReportResult["meta"]>) {
+    setBatchResults((list) => {
+      if (!list) return list;
+      const copy = [...list];
+      copy[i] = { ...copy[i], meta: { ...copy[i].meta, ...patch } };
+      return copy;
+    });
+  }
 
   function onPickImage(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
