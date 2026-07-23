@@ -1287,6 +1287,40 @@ const Poster = forwardRef<HTMLDivElement, PosterProps>(function Poster(
   );
 });
 
+function Editable({
+  editable,
+  value,
+  onChange,
+}: {
+  editable: boolean;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  if (!editable) return <>{value}</>;
+  return (
+    <span
+      contentEditable
+      suppressContentEditableWarning
+      spellCheck={false}
+      onBlur={(e) => {
+        const v = (e.currentTarget.textContent || "").trim();
+        if (v && v !== value) onChange(v);
+        else if (!v) e.currentTarget.textContent = value;
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          (e.currentTarget as HTMLElement).blur();
+        }
+      }}
+      className="rounded px-0.5 outline outline-1 outline-dashed outline-current/40 hover:outline-current focus:outline-2 focus:outline-solid focus:outline-[color:currentColor]"
+      style={{ cursor: "text" }}
+    >
+      {value}
+    </span>
+  );
+}
+
 function formatDateCn(d: string) {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d);
   if (!m) return d;
