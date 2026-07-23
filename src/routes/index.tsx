@@ -979,6 +979,9 @@ function Index() {
                     data={r}
                     template={template}
                     image={null}
+                    editable={editing}
+                    onReportChange={(next) => updateBatchReport(i, next)}
+                    onMetaChange={(patch) => updateBatchMeta(i, patch)}
                   />
                 </div>
               ))}
