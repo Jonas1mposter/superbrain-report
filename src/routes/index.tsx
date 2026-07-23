@@ -1313,8 +1313,8 @@ function Editable({
           (e.currentTarget as HTMLElement).blur();
         }
       }}
-      className="rounded px-0.5 outline outline-1 outline-dashed outline-current/40 hover:outline-current focus:outline-2 focus:outline-solid focus:outline-[color:currentColor]"
-      style={{ cursor: "text" }}
+      className="rounded px-0.5"
+      style={{ cursor: "text", outline: "1px dashed rgba(148,163,184,0.7)", outlineOffset: "2px" }}
     >
       {value}
     </span>
