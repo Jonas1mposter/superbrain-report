@@ -262,6 +262,10 @@ function Index() {
     node.style.width = `${EXPORT_WIDTH}px`;
     node.style.maxWidth = `${EXPORT_WIDTH}px`;
     node.style.minWidth = `${EXPORT_WIDTH}px`;
+    const wasEditing = editing;
+    if (wasEditing) setEditing(false);
+    // Give React a frame to strip contentEditable outlines before capture.
+    await new Promise((r) => requestAnimationFrame(() => r(null)));
     try {
       const imgs = Array.from(node.querySelectorAll("img"));
       await Promise.all(
