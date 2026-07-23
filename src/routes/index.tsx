@@ -1074,10 +1074,19 @@ const ACCENT_SWATCHES: { name: string; accent: string; bg: string; trait: string
   { name: "石墨", accent: "#475569", bg: "#eef1f5", trait: "#1e293b" },
 ];
 
-const Poster = forwardRef<
-  HTMLDivElement,
-  { data: ReportResult; template: PosterTemplate; image?: string | null }
->(function Poster({ data, template, image }, ref) {
+type PosterProps = {
+  data: ReportResult;
+  template: PosterTemplate;
+  image?: string | null;
+  editable?: boolean;
+  onReportChange?: (next: DailyReport) => void;
+  onMetaChange?: (patch: Partial<ReportResult["meta"]>) => void;
+};
+
+const Poster = forwardRef<HTMLDivElement, PosterProps>(function Poster(
+  { data, template, image, editable = false, onReportChange, onMetaChange },
+  ref,
+) {
   const { report, meta } = data;
   const en = SECTION_EN[template.reportStyle ?? "observation"];
   const accent = template.themeAccent || "#3b82f6";
@@ -1085,6 +1094,19 @@ const Poster = forwardRef<
   const traitBg = template.themeTraitBg || "#1f2a3d";
   const kicker = template.reportStyle === "highlight" ? "Highlight Report" : "Observation Report";
   const title = template.reportStyle === "highlight" ? "今日高光反馈" : "学员观察报告";
+
+  const updatePoint = (key: "facts" | "thoughts", i: number, v: string) => {
+    if (!onReportChange) return;
+    const arr = [...report[key].points];
+    arr[i] = v;
+    onReportChange({ ...report, [key]: { ...report[key], points: arr } });
+  };
+  const updateStep = (i: number, v: string) => {
+    if (!onReportChange) return;
+    const arr = [...report.plans.steps];
+    arr[i] = v;
+    onReportChange({ ...report, plans: { ...report.plans, steps: arr } });
+  };
 
   return (
     <div
