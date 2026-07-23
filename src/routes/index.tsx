@@ -1240,7 +1240,11 @@ const Poster = forwardRef<HTMLDivElement, PosterProps>(function Poster(
             核心特质 / TRAIT
           </div>
           <div className="mt-3 text-[17px] italic leading-relaxed text-white sm:text-[20px]">
-            "{report.encouragement}"
+            "<Editable
+              editable={editable}
+              value={report.encouragement}
+              onChange={(v) => onReportChange?.({ ...report, encouragement: v })}
+            />"
           </div>
         </div>
       )}
