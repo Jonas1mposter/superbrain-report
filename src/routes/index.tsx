@@ -1257,7 +1257,11 @@ const Poster = forwardRef<HTMLDivElement, PosterProps>(function Poster(
           今日观察主线
         </div>
         <div className="mt-2 text-[17px] font-bold text-[#0b1b35] sm:text-[20px]">
-          "{report.facts.title}"
+          "<Editable
+            editable={editable}
+            value={report.facts.title}
+            onChange={(v) => onReportChange?.({ ...report, facts: { ...report.facts, title: v } })}
+          />"
         </div>
       </div>
 
