@@ -890,7 +890,18 @@ function Index() {
               {mode === "single" ? "海报预览" : `海报预览${batchResults ? `（${batchResults.length} 位学员）` : ""}`}
             </h2>
             {mode === "single" && result && (
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setEditing((v) => !v)}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                    editing
+                      ? "bg-[oklch(0.55_0.18_30)] text-white"
+                      : "border border-[oklch(0.85_0.03_60)] bg-white hover:bg-[oklch(0.96_0.02_80)]"
+                  }`}
+                  title="点击海报里的文字直接改，改完点空白处保存"
+                >
+                  {editing ? "✅ 完成编辑" : "✏️ 编辑文字"}
+                </button>
                 <button
                   onClick={downloadImage}
                   disabled={exporting}
@@ -907,13 +918,25 @@ function Index() {
               </div>
             )}
             {mode === "batch" && batchResults && batchResults.length > 0 && (
-              <button
-                onClick={downloadAllBatch}
-                disabled={exporting}
-                className="rounded-lg bg-[oklch(0.55_0.18_30)] px-3 py-1.5 text-xs font-medium text-white hover:bg-[oklch(0.5_0.18_30)] disabled:opacity-60"
-              >
-                {exporting ? "导出中…" : "📷 批量导出图片"}
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setEditing((v) => !v)}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                    editing
+                      ? "bg-[oklch(0.55_0.18_30)] text-white"
+                      : "border border-[oklch(0.85_0.03_60)] bg-white hover:bg-[oklch(0.96_0.02_80)]"
+                  }`}
+                >
+                  {editing ? "✅ 完成编辑" : "✏️ 编辑文字"}
+                </button>
+                <button
+                  onClick={downloadAllBatch}
+                  disabled={exporting}
+                  className="rounded-lg bg-[oklch(0.55_0.18_30)] px-3 py-1.5 text-xs font-medium text-white hover:bg-[oklch(0.5_0.18_30)] disabled:opacity-60"
+                >
+                  {exporting ? "导出中…" : "📷 批量导出图片"}
+                </button>
+              </div>
             )}
           </div>
 
